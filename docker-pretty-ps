@@ -1,0 +1,131 @@
+#!/usr/bin/env python
+"""Docker-Pretty-PS
+Tired of that awful super wide docker ps output? Try docker-pretty-ps!
+
+Invoke by calling docker-pretty-ps and get an output like so,
+
+Name:         cool-freaking-container
+Container ID: 1a685dd9d351
+Image ID:     28bbeb325405
+Created:      9 days ago
+Status:       Up 43 minutes
+Command:      "tail -f /dev/null"
+
+Name:         some-postgres
+Container ID: 0370c73b4951
+Image ID:     postgres:alpine
+Created:      9 days ago
+Status:       Up 43 minutes
+Command:      "/bin/sh -c 'while t..."
+
+
+"""
+from datetime import datetime, timedelta
+import subprocess
+
+
+def run():
+    """
+    Primary start of the application
+
+    """
+    out = subprocess.Popen(
+        ['docker', 'ps'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT)
+    stdout, stderr = out.communicate()
+    containers = clean_output(stdout)
+    pretty_print(containers)
+
+
+def clean_output(output):
+    """
+    Cleans the output from the docker ps command, storing it into a list of dicts.
+
+    :param output: The standard out from the docker ps command.
+    :type output: str
+    :returns: Cleaned, usable output from docker-ps
+    :rtype: list
+    """
+    lines = output.split('\n')
+    ret = []
+    for line in lines[1:]:
+        line_split = line.split('  ')
+        revised_line_split = []
+        if len(line_split) == 1:
+            continue
+        for piece in line_split:
+            if piece and piece.strip() != '':
+                revised_line_split.append(piece)
+        container = {
+            'container_id': revised_line_split[0].strip(),
+            'image_id': revised_line_split[1].strip(),
+            'command': revised_line_split[2].strip(),
+            'created': revised_line_split[3].strip(),
+            'status': revised_line_split[4].strip(),
+            'staus_time': get_container_time(revised_line_split[4].strip())
+        }
+
+        # Not all containers will have ports
+        if len(revised_line_split) == 6:
+            container['ports'] = None
+            container['name'] = revised_line_split[5].strip()
+        else:
+            container['ports'] = revised_line_split[5].strip()
+            container['name'] = revised_line_split[6].strip()
+        ret.append(container)
+
+    return ret
+
+
+def get_container_time(val):
+    """
+    Gets the relative time the container was created based on the string from the docker ps command.
+
+    :param val:
+    :type val: str
+    :returns: Rough datetime for when the continer was started.
+    :rtype: <Datetime obj>
+    """
+    now = datetime.now()
+    cleaned = val.replace('Up ', '').lower()
+    if 'seconds' in cleaned:
+        digit = cleaned.replace(' seconds', '')
+        digit = int(digit)
+        the_date = now - timedelta(seconds=digit)
+    elif 'minutes' in cleaned:
+        digit = cleaned.replace(' minutes', '')
+        digit = int(digit)
+        the_date = now - timedelta(minutes=digit)
+    elif 'about an hour' in cleaned:
+        digit = 1
+        the_date = now - timedelta(hours=digit)
+    elif 'hours' in cleaned:
+        digit = cleaned.replace(' hours', '')
+        digit = int(digit)
+        the_date = now - timedelta(hours=digit)
+    else:
+        the_date = now
+
+    return the_date
+
+
+def pretty_print(containers):
+    """
+    Actually prints the stuff to the console.
+    @todo: Colors (optional?) would probably be pretty cool here.
+
+    """
+    print('Running docker containers\n')
+    for container in containers:
+        print('Name:\t\t%s' % container['name'])
+        print('Container ID:\t%s' % container['container_id'])
+        print('Image ID:\t%s' % container['image_id'])
+        print('Created:\t%s' % container['created'])
+        print('Status:\t\t%s' % container['status'])
+        print('Command:\t%s' % container['command'])
+        print('')
+
+
+if __name__ == '__main__':
+    run()
