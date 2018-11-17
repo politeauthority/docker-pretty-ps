@@ -35,3 +35,5 @@ cp docker-pretty-ps/docker-pretty-ps ~/bin
 * Add unit tests
 * Add colors!
 * Better install instructions.. probably
+* Ordering options
+* Support docker ps -a (to get all running and stopped containers on the host)

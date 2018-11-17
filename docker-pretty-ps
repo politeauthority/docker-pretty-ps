@@ -18,11 +18,10 @@ Created:      9 days ago
 Status:       Up 43 minutes
 Command:      "/bin/sh -c 'while t..."
 
-
 """
 from datetime import datetime, timedelta
+from operator import itemgetter
 import subprocess
-
 
 def run():
     """
@@ -35,6 +34,7 @@ def run():
         stderr=subprocess.STDOUT)
     stdout, stderr = out.communicate()
     containers = clean_output(stdout)
+    containers = order_containers(containers, field='staus_date')
     pretty_print(containers)
 
 
@@ -63,7 +63,7 @@ def clean_output(output):
             'command': revised_line_split[2].strip(),
             'created': revised_line_split[3].strip(),
             'status': revised_line_split[4].strip(),
-            'staus_time': get_container_time(revised_line_split[4].strip())
+            'staus_date': get_container_time(revised_line_split[4].strip())
         }
 
         # Not all containers will have ports
@@ -110,19 +110,24 @@ def get_container_time(val):
     return the_date
 
 
+def order_containers(containers, field):
+    newlist = sorted(containers, key=itemgetter(field))
+    return newlist
+
+
 def pretty_print(containers):
     """
     Actually prints the stuff to the console.
     @todo: Colors (optional?) would probably be pretty cool here.
 
     """
-    print('Running docker containers\n')
+    print('Currently running docker containers\n')
     for container in containers:
-        print('Name:\t\t%s' % container['name'])
+        print('%s' % container['name'])
+        print('Status:\t\t%s' % container['status'])
+        print('Created:\t%s' % container['created'])
         print('Container ID:\t%s' % container['container_id'])
         print('Image ID:\t%s' % container['image_id'])
-        print('Created:\t%s' % container['created'])
-        print('Status:\t\t%s' % container['status'])
         print('Command:\t%s' % container['command'])
         print('')
 
