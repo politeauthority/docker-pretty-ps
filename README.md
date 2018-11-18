@@ -1,5 +1,5 @@
 # docker-pretty-ps
-Tired of that awful super wide docker ps output? I'm always resizing the text on my terminal to see what ```docker ps``` is outputting, and it's making me go blind. Try docker-pretty-ps! Just run ```docker-pretty-ps``` and get your output long, instead of wide!
+Tired of that awful super wide docker ps output? I'm always resizing the text on my terminal to see what ```docker ps``` is outputting, and it's making me go blind. Try docker-pretty-ps! Just run ```docker-pretty-ps``` and get your output long, instead of wide! **Now with COLORS!**
 
 ```
 $ ./docker-pretty-ps
@@ -33,7 +33,6 @@ cp docker-pretty-ps/docker-pretty-ps ~/bin
 
 # Future
 * Add unit tests
-* Add colors!
 * Better install instructions.. probably
 * Ordering options
 * Support docker ps -a (to get all running and stopped containers on the host)
