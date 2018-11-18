@@ -1,23 +1,23 @@
 # docker-pretty-ps
-Tired of that awful super wide docker ps output? I'm always resizing the text on my terminal to see what ```docker ps``` is outputting, and it's making me go blind. Try docker-pretty-ps! Just run ```docker-pretty-ps``` and get your output long, instead of wide!
+Tired of that awful super wide docker ps output? I'm always resizing the text on my terminal to see what ```docker ps``` is outputting, and it's making me go blind. Try docker-pretty-ps! Just run ```docker-pretty-ps``` and get your output long, instead of wide! **Now with COLORS!**
 
 ```
 $ ./docker-pretty-ps
-Running docker containers
+Currently running docker containers
 
-Name:         cool-freaking-container
-Container ID: 1a685dd9d351
-Image ID:     28bbeb325405
-Created:      9 days ago
-Status:       Up 43 minutes
-Command:      "tail -f /dev/null"
+some-postgres
+    Status:         Up About an hour
+    Created:        4 weeks ago
+    Container ID:   294843cd3eab
+    Image ID:       postgres:alpine
+    Command:        "docker-entrypoint.s…"
 
-Name:         some-postgres
-Container ID: 0370c73b4951
-Image ID:     postgres:alpine
-Created:      9 days ago
-Status:       Up 43 minutes
-Command:      "/bin/sh -c 'while t..."
+some-python
+    Status:         Up About an hour
+    Created:        3 months ago
+    Container ID:   0370c73b4951
+    Image ID:       some-python
+    Command:        "/bin/sh -c 'while t…"
 ```
 
 # Install
@@ -33,7 +33,6 @@ cp docker-pretty-ps/docker-pretty-ps ~/bin
 
 # Future
 * Add unit tests
-* Add colors!
 * Better install instructions.. probably
 * Ordering options
 * Support docker ps -a (to get all running and stopped containers on the host)
