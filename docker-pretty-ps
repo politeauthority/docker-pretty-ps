@@ -23,6 +23,14 @@ from datetime import datetime, timedelta
 from operator import itemgetter
 import subprocess
 
+HEADER = '\033[95m'
+BLUE = '\033[94m'
+GREEN = '\033[92m'
+WARNING = '\033[93m'
+FAIL = '\033[91m'
+UNDERLINE = '\033[4m'
+
+
 def run():
     """
     Primary start of the application
@@ -48,7 +56,7 @@ def clean_output(output):
     :rtype: list
     """
     lines = output.split('\n')
-    ret = []
+    containers = []
     for line in lines[1:]:
         line_split = line.split('  ')
         revised_line_split = []
@@ -73,16 +81,18 @@ def clean_output(output):
         else:
             container['ports'] = revised_line_split[5].strip()
             container['name'] = revised_line_split[6].strip()
-        ret.append(container)
 
-    return ret
+        containers.append(container)
+
+    containers = get_container_colors(containers)
+    return containers
 
 
 def get_container_time(val):
     """
     Gets the relative time the container was created based on the string from the docker ps command.
 
-    :param val:
+    :param val: The string representation of when the container was started.
     :type val: str
     :returns: Rough datetime for when the continer was started.
     :rtype: <Datetime obj>
@@ -110,7 +120,57 @@ def get_container_time(val):
     return the_date
 
 
+def get_container_colors(containers):
+    """
+    Sets the ANSII color cmd to use for each container based on it's position in the list.
+
+    :param containers: The containers found from docker ps.
+    :type containers: list
+    :returns: Added color cmd to each container.
+    :rtype: list
+    """
+    count = 0
+    for c in containers:
+        c['color'] = get_color(count)
+        count += 1
+    return containers
+
+
+def get_color(count):
+    """
+    Gets a color from the list of colors.
+    @todo: Some more colors that are visable on light and dark screens would be nice.
+
+    :param count:
+    :type count:
+    :returns: The ASNII color to use when printing to the terminal.
+    :rtype: int
+    """
+    colors = [
+        '\033[94m',  # purple
+        '\033[92m',  # green
+        '\033[91m',  # red
+        '\033[96m',  # cyan
+        '\033[93m',  # yellow
+        '\033[95m',  # magenta
+    ]
+    while count > len(colors):
+        colors += colors
+
+    return colors[count - 1]
+
+
 def order_containers(containers, field):
+    """
+    Orders containers based on the field requested.
+
+    :param containers: The containers found from docker ps.
+    :type containers: list
+    :param field: The field to order on.
+    :type field: str
+    :returns: The ordered list of dicts of containers.
+    :rtype: list
+    """
     newlist = sorted(containers, key=itemgetter(field))
     return newlist
 
@@ -118,17 +178,18 @@ def order_containers(containers, field):
 def pretty_print(containers):
     """
     Actually prints the stuff to the console.
-    @todo: Colors (optional?) would probably be pretty cool here.
 
     """
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
     print('Currently running docker containers\n')
     for container in containers:
-        print('%s' % container['name'])
-        print('Status:\t\t%s' % container['status'])
-        print('Created:\t%s' % container['created'])
-        print('Container ID:\t%s' % container['container_id'])
-        print('Image ID:\t%s' % container['image_id'])
-        print('Command:\t%s' % container['command'])
+        print(BOLD + container['color'] + container['name'] + ENDC)
+        print('\t' + BOLD + 'Status:' + ENDC + '\t\t\t' + container['status'])
+        print('\t' + BOLD + 'Created:' + ENDC + '\t\t' + container['created'])
+        print('\t' + BOLD + 'Container ID:' + ENDC + '\t\t' + container['container_id'])
+        print('\t' + BOLD + 'Image ID:' + ENDC + '\t\t' + container['image_id'])
+        print('\t' + BOLD + 'Command:' + ENDC + '\t\t' + container['command'])
         print('')
 
 
