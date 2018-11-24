@@ -19,6 +19,7 @@ Status:       Up 43 minutes
 Command:      "/bin/sh -c 'while t..."
 
 """
+import argparse
 from datetime import datetime, timedelta
 from operator import itemgetter
 import subprocess
@@ -29,14 +30,31 @@ def run():
     Primary start of the application
 
     """
+    args = _parsed_args()
     out = subprocess.Popen(
         ['docker', 'ps'],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT)
     stdout, stderr = out.communicate()
     containers = clean_output(stdout)
+    containers = filter_containers(containers, args.search)
     containers = order_containers(containers, field='staus_date')
-    pretty_print(containers)
+    pretty_print(containers, args)
+
+
+def _parsed_args():
+    """
+    Parses args from the cli, hopefully this will be handled better potential arguments are passed in.
+
+    :param args: Sys args passed into the script
+    :type args: list
+    :returns: Parsed arguments
+    :rtype: <Namespace> obj
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("search", help="echo the string you use here")
+    args = parser.parse_args()
+    return args
 
 
 def clean_output(output):
@@ -153,6 +171,28 @@ def get_color(count):
     return colors[count - 1]
 
 
+def filter_containers(containers, search):
+    """
+    Filters containers by the search phrase matching the container name in some way.
+
+    :param containers: The containers found from docker ps.
+    :type containers: list
+    :param search: The search phrase to search container names.
+    :type search: str
+    :returns: The filtered list of dicts of containers.
+    :rtype: list
+    """
+    if not search:
+        return containers
+
+    filtered_containers = []
+    for container in containers:
+        if search in container['name']:
+            filtered_containers.append(container)
+
+    return filtered_containers
+
+
 def order_containers(containers, field):
     """
     Orders containers based on the field requested.
@@ -164,18 +204,27 @@ def order_containers(containers, field):
     :returns: The ordered list of dicts of containers.
     :rtype: list
     """
-    newlist = sorted(containers, key=itemgetter(field))
-    return newlist
+    if not containers:
+        return containers
+    ordered_containers = sorted(containers, key=itemgetter(field))
+    return ordered_containers
 
 
-def pretty_print(containers):
+def pretty_print(containers, args):
     """
     Actually prints the stuff to the console.
 
+    :param containers: The containers found from docker ps.
+    :type containers: list
+    :param args: Args parsed by ArgParse.
+    :type args: <Namespace> obj
     """
     ENDC = '\033[0m'
     BOLD = '\033[1m'
-    print('Currently running docker containers\n')
+    if args.search:
+        print('Currently running containers with: %s\n' % args.search)
+    else:
+        print('All Currently running docker containers\n')
     for container in containers:
         print(BOLD + container['color'] + container['name'] + ENDC)
         print('\t' + BOLD + 'Status:' + ENDC + '\t\t\t' + container['status'])
