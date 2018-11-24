@@ -52,7 +52,7 @@ def _parsed_args():
     :rtype: <Namespace> obj
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("search", help="echo the string you use here")
+    parser.add_argument("search", nargs='?', default='', help="Phrase to search containers on.")
     args = parser.parse_args()
     return args
 
@@ -87,12 +87,11 @@ def clean_output(output):
 
         # Not all containers will have ports
         if len(revised_line_split) == 6:
-            container['ports'] = None
+            container['ports'] = ''
             container['name'] = revised_line_split[5].strip()
         else:
             container['ports'] = revised_line_split[5].strip()
             container['name'] = revised_line_split[6].strip()
-
         containers.append(container)
 
     containers = get_container_colors(containers)
@@ -229,6 +228,7 @@ def pretty_print(containers, args):
         print(BOLD + container['color'] + container['name'] + ENDC)
         print('\t' + BOLD + 'Status:' + ENDC + '\t\t\t' + container['status'])
         print('\t' + BOLD + 'Created:' + ENDC + '\t\t' + container['created'])
+        print('\t' + BOLD + 'Ports:' + ENDC + '\t\t\t' + container['ports'])
         print('\t' + BOLD + 'Container ID:' + ENDC + '\t\t' + container['container_id'])
         print('\t' + BOLD + 'Image ID:' + ENDC + '\t\t' + container['image_id'])
         print('\t' + BOLD + 'Command:' + ENDC + '\t\t' + container['command'])
