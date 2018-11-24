@@ -37,9 +37,10 @@ def run():
         stderr=subprocess.STDOUT)
     stdout, stderr = out.communicate()
     containers = clean_output(stdout)
+    total_containers = len(containers)
     containers = filter_containers(containers, args.search)
     containers = order_containers(containers, field='staus_date')
-    pretty_print(containers, args)
+    pretty_print(containers, total_containers, args)
 
 
 def _parsed_args():
@@ -87,15 +88,30 @@ def clean_output(output):
 
         # Not all containers will have ports
         if len(revised_line_split) == 6:
-            container['ports'] = ''
+            container['ports'] = []
             container['name'] = revised_line_split[5].strip()
         else:
-            container['ports'] = revised_line_split[5].strip()
+            container['ports'] = _clean_ports(revised_line_split[5])
             container['name'] = revised_line_split[6].strip()
         containers.append(container)
 
     containers = get_container_colors(containers)
     return containers
+
+
+def _clean_ports(port_str):
+    """
+    :param port_str: The string of ports from the docker ps output.
+    :type port_str: str
+    :returns: The ports broken into a list.
+    :rtype: list
+    """
+    port_str = port_str.strip()
+    if ', ' not in port_str:
+        return [port_str]
+
+    ports = port_str.split(', ')
+    return ports
 
 
 def get_container_time(val):
@@ -109,6 +125,8 @@ def get_container_time(val):
     """
     now = datetime.now()
     cleaned = val.replace('Up ', '').lower()
+    if 'restarting'.lower() in val:
+        return now
     if 'seconds' in cleaned:
         digit = cleaned.replace(' seconds', '')
         digit = int(digit)
@@ -209,12 +227,14 @@ def order_containers(containers, field):
     return ordered_containers
 
 
-def pretty_print(containers, args):
+def pretty_print(containers, total_containers, args):
     """
     Actually prints the stuff to the console.
 
     :param containers: The containers found from docker ps.
     :type containers: list
+    :param total_containers: Number of total running containers.
+    :type total_containers: int
     :param args: Args parsed by ArgParse.
     :type args: <Namespace> obj
     """
@@ -228,11 +248,26 @@ def pretty_print(containers, args):
         print(BOLD + container['color'] + container['name'] + ENDC)
         print('\t' + BOLD + 'Status:' + ENDC + '\t\t\t' + container['status'])
         print('\t' + BOLD + 'Created:' + ENDC + '\t\t' + container['created'])
-        print('\t' + BOLD + 'Ports:' + ENDC + '\t\t\t' + container['ports'])
+        if len(container['ports']) == 0:
+            print('\t' + BOLD + 'Ports:' + ENDC + '\t\t\t' + '')
+        elif len(container['ports']) == 1:
+            print('\t' + BOLD + 'Ports:' + ENDC + '\t\t\t' + container['ports'][0])
+        else:
+            c = 0
+            for container_port in container['ports']:
+                if c == 0:
+                    print('\t' + BOLD + 'Ports:' + ENDC + '\t\t\t' + container_port)
+                else:
+                    print('\t\t\t\t' + container_port)
+                c += 1
+
         print('\t' + BOLD + 'Container ID:' + ENDC + '\t\t' + container['container_id'])
         print('\t' + BOLD + 'Image ID:' + ENDC + '\t\t' + container['image_id'])
         print('\t' + BOLD + 'Command:' + ENDC + '\t\t' + container['command'])
         print('')
+    print('Total Containers:\t%s' % total_containers)
+    if args.search:
+        print('Containers in Seach:\t%s' % len(containers))
 
 
 if __name__ == '__main__':
