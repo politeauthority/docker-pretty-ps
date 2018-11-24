@@ -1,23 +1,39 @@
 # docker-pretty-ps
 Tired of that awful super wide docker ps output? I'm always resizing the text on my terminal to see what ```docker ps``` is outputting, and it's making me go blind. Try docker-pretty-ps! Just run ```docker-pretty-ps``` and get your output long, instead of wide! **Now with COLORS!**
 
+Run with ```docker-pretty-ps``` to get all running containers or ```docker-pretty-ps a-search```
+
 ```
-$ ./docker-pretty-ps
-Currently running docker containers
+$ docker-pretty-ps web
+Currently running containers with: web
 
-some-postgres
-    Status:         Up About an hour
-    Created:        4 weeks ago
-    Container ID:   294843cd3eab
-    Image ID:       postgres:alpine
-    Command:        "docker-entrypoint.s…"
+bad-actor-services_bad-actor-services-web_1
+	Status:			    Up 3 days
+	Created:		    3 days ago
+	Ports:			    0.0.0.0:5000->5000/tcp
+			    	    0.0.0.0:5001->80/tcp
+	Container ID:		47549f78a0eb
+	Image ID:		    bad-actor-services_bad-actor-services-web
+	Command:		    tail -f /dev/null"
 
-some-python
-    Status:         Up About an hour
-    Created:        3 months ago
-    Container ID:   0370c73b4951
-    Image ID:       some-python
-    Command:        "/bin/sh -c 'while t…"
+tradetrack_web_1
+	Status:	    		Up 5 days
+	Created:	    	5 days ago
+	Ports:		    	80/tcp
+			        	0.0.0.0:5010->5010/tcp
+	Container ID:		416948f10a42
+	Image ID:		    tradetrack_web
+	Command:		    "gunicorn -b 0.0.0.0…"
+
+tradetrack_dev_web_1
+	Status:		    	Up 6 days
+	Created:    		6 days ago
+	Container ID:		5f7ab3814051
+	Image ID:	    	tradetrack_dev_web
+	Command:	    	"gunicorn -b 0.0.0.0…"
+
+Total Containers:	12
+Containers in Seach:	3
 ```
 
 # Install
