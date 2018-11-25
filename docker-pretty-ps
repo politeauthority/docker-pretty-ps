@@ -39,21 +39,31 @@ def run():
     containers = clean_output(stdout)
     total_containers = len(containers)
     containers = filter_containers(containers, args.search)
-    containers = order_containers(containers, field='staus_date')
+    containers = order_containers(containers, args)
     pretty_print(containers, total_containers, args)
 
 
 def _parsed_args():
     """
-    Parses args from the cli, hopefully this will be handled better potential arguments are passed in.
+    Parses args from the cli with ArgumentParser
 
-    :param args: Sys args passed into the script
-    :type args: list
     :returns: Parsed arguments
     :rtype: <Namespace> obj
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("search", nargs='?', default='', help="Phrase to search containers on.")
+    parser.add_argument("search", nargs='?', default='', help="Phrase to search containers, comma separate multiples")
+    parser.add_argument(
+        "-o",
+        "--order",
+        nargs='?',
+        default='',
+        help="Order by, defaults to container start, allows 'container', 'image'.")
+    parser.add_argument(
+        "-r",
+        "--reverse",
+        nargs='?',
+        default='',
+        help="Reverses the display order.")
     args = parser.parse_args()
     return args
 
@@ -83,7 +93,7 @@ def clean_output(output):
             'command': revised_line_split[2].strip(),
             'created': revised_line_split[3].strip(),
             'status': revised_line_split[4].strip(),
-            'staus_date': get_container_time(revised_line_split[4].strip())
+            'status_date': get_container_time(revised_line_split[4].strip())
         }
 
         # Not all containers will have ports
@@ -125,8 +135,11 @@ def get_container_time(val):
     """
     now = datetime.now()
     cleaned = val.replace('Up ', '').lower()
-    if 'restarting'.lower() in val:
-        return now
+    # 'Restarting' containers will look like so "Restarting (1) 36 seconds ago"
+    if 'restarting'.lower() in cleaned:
+        cleaned = cleaned[cleaned.find(')') + 1:]
+        cleaned = cleaned.replace('ago', '').strip()
+
     if 'seconds' in cleaned:
         digit = cleaned.replace(' seconds', '')
         digit = int(digit)
@@ -188,42 +201,64 @@ def get_color(count):
     return colors[count - 1]
 
 
-def filter_containers(containers, search):
+def filter_containers(containers, searches):
     """
     Filters containers by the search phrase matching the container name in some way.
 
     :param containers: The containers found from docker ps.
     :type containers: list
-    :param search: The search phrase to search container names.
-    :type search: str
+    :param searches: The search phrase to search container names.
+    :type searches: str
     :returns: The filtered list of dicts of containers.
     :rtype: list
     """
-    if not search:
+    if not searches:
         return containers
+
+    if ',' in searches:
+        searches = searches.split(',')
+    else:
+        searches = [searches]
 
     filtered_containers = []
     for container in containers:
-        if search in container['name']:
-            filtered_containers.append(container)
+        for search in searches:
+            if search in container['name']:
+                filtered_containers.append(container)
+                break
 
     return filtered_containers
 
 
-def order_containers(containers, field):
+def order_containers(containers, args):
     """
     Orders containers based on the field requested.
 
     :param containers: The containers found from docker ps.
     :type containers: list
-    :param field: The field to order on.
-    :type field: str
+    :param args: Parsed arguments from cli.
+    :type args: <Namespace> obj
     :returns: The ordered list of dicts of containers.
     :rtype: list
     """
     if not containers:
         return containers
+
+    field = 'status_date'
+    if args.order:
+        if args.order in ['container', 'container-name', 'container-id']:
+            field = 'container_id'
+        if args.order in ['image', 'image-id', 'image-name']:
+            field = 'image_id'
+
     ordered_containers = sorted(containers, key=itemgetter(field))
+
+    if args.reverse:
+        ordered_containers.reverse()
+
+    if field in ['status_date']:
+        ordered_containers.reverse()
+
     return ordered_containers
 
 
@@ -235,7 +270,7 @@ def pretty_print(containers, total_containers, args):
     :type containers: list
     :param total_containers: Number of total running containers.
     :type total_containers: int
-    :param args: Args parsed by ArgParse.
+    :param args: Parsed arguments from cli.
     :type args: <Namespace> obj
     """
     ENDC = '\033[0m'
