@@ -61,8 +61,8 @@ def _parsed_args():
     parser.add_argument(
         "-r",
         "--reverse",
-        nargs='?',
-        default='',
+        default=False,
+        action='store_true',
         help="Reverses the display order.")
     args = parser.parse_args()
     return args
@@ -140,6 +140,9 @@ def get_container_time(val):
         cleaned = cleaned[cleaned.find(')') + 1:]
         cleaned = cleaned.replace('ago', '').strip()
 
+    if '(healthy' in cleaned:
+        cleaned = cleaned[:cleaned.find('(healthy')].strip()
+        
     if 'seconds' in cleaned:
         digit = cleaned.replace(' seconds', '')
         digit = int(digit)
@@ -256,9 +259,8 @@ def order_containers(containers, args):
     if args.reverse:
         ordered_containers.reverse()
 
-    if field in ['status_date']:
+    if field in ['status_date'] and not args.reverse:
         ordered_containers.reverse()
-
     return ordered_containers
 
 
