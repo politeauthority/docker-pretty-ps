@@ -314,68 +314,9 @@ def print_format(containers, total_containers, args):
     return True
 
 
-def pretty_print_slim(containers, args):
-    """
-
-
-    :param containers: The containers found from docker ps.
-    :type containers: list
-    :param args: Parsed arguments from cli.
-    :type args: <Namespace> obj
-    """
-    print_content = []
-    header = ['Name']
-
-    selected_includes = []
-    if args.include:
-        for include in args.include:
-            selected_includes.append(include)
-    else:
-        selected_includes += ['s', 'p']
-
-    for container in containers:
-            name_string = BOLD + container['color'] + container['name'] + ENDC
-            slim_content = [name_string]
-            for include in selected_includes:
-                # Add the status
-                if include == 's':
-                    slim_content.append(container['status'])
-                    if 'Status' not in header:
-                        header.append('Status')
-
-                # Add the port
-                if include == 'p':
-                    slim_content.append(" ".join(container['ports']))
-                    if 'Ports' not in header:
-                        header.append('Ports')
-
-                # Add the image
-                if include == 'i':
-                    slim_content.append(container['image_id'])
-                    if 'Image' not in header:
-                        header.append('Image')
-
-                # Add the created
-                if include == 'c':
-                    slim_content.append(container['created'])
-                    if 'Created' not in header:
-                        header.append('Created')
-
-                # Add the image
-                if include == 'm':
-                    slim_content.append(container['command'])
-                    if 'Command' not in header:
-                        header.append('Command')
-
-            print_content.append(slim_content)
-
-    print_content.insert(0, header)
-    print_data(print_content)
-
-
 def pretty_print_reg(containers, args):
     """
-    Pretty Print container data.
+    Pretty print container data in regular long form, displaying all data.
 
     :param containers: The containers found from docker ps.
     :type containers: list
@@ -439,10 +380,68 @@ def pretty_print_reg(containers, args):
                 container['command']])
         print_content.append(['', ''])
 
-
     print_data(print_content)
 
     return True
+
+
+def pretty_print_slim(containers, args):
+    """
+    Prints container ps in short form, displaying only requested info.
+
+    :param containers: The containers found from docker ps.
+    :type containers: list
+    :param args: Parsed arguments from cli.
+    :type args: <Namespace> obj
+    """
+    print_content = []
+    header = ['Name']
+
+    selected_includes = []
+    if args.include:
+        for include in args.include:
+            selected_includes.append(include)
+    else:
+        selected_includes += ['s', 'p']
+
+    for container in containers:
+            name_string = BOLD + container['color'] + container['name'] + ENDC
+            slim_content = [name_string]
+            for include in selected_includes:
+                # Add the status
+                if include == 's':
+                    slim_content.append(container['status'])
+                    if 'Status' not in header:
+                        header.append('Status')
+
+                # Add the port
+                if include == 'p':
+                    slim_content.append(" ".join(container['ports']))
+                    if 'Ports' not in header:
+                        header.append('Ports')
+
+                # Add the image
+                if include == 'i':
+                    slim_content.append(container['image_id'])
+                    if 'Image' not in header:
+                        header.append('Image')
+
+                # Add the created
+                if include == 'c':
+                    slim_content.append(container['created'])
+                    if 'Created' not in header:
+                        header.append('Created')
+
+                # Add the image
+                if include == 'm':
+                    slim_content.append(container['command'])
+                    if 'Command' not in header:
+                        header.append('Command')
+
+            print_content.append(slim_content)
+
+    print_content.insert(0, header)
+    print_data(print_content)
 
 
 def print_data(data):
