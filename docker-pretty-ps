@@ -24,6 +24,9 @@ from datetime import datetime, timedelta
 from operator import itemgetter
 import subprocess
 
+ENDC = '\033[0m'
+BOLD = '\033[1m'
+
 
 def run():
     """
@@ -40,7 +43,7 @@ def run():
     total_containers = len(containers)
     containers = filter_containers(containers, args.search)
     containers = order_containers(containers, args)
-    pretty_print(containers, total_containers, args)
+    print_format(containers, total_containers, args)
 
 
 def _parsed_args():
@@ -51,7 +54,23 @@ def _parsed_args():
     :rtype: <Namespace> obj
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("search", nargs='?', default='', help="Phrase to search containers, comma separate multiples")
+    parser.add_argument(
+        "search",
+        nargs='?',
+        default='',
+        help="Phrase to search containers, comma separate multiples.")
+
+    parser.add_argument(
+        "-s",
+        "--slim",
+        default=False,
+        action='store_true',
+        help="Shows a slim minimal output.")
+    parser.add_argument(
+        "-i",
+        "--include",
+        default=[],
+        help="Data points to add to slim display, (c)reated, (p)orts, (i)mage_id, co(m)mand")
     parser.add_argument(
         "-o",
         "--order",
@@ -64,7 +83,15 @@ def _parsed_args():
         default=False,
         action='store_true',
         help="Reverses the display order.")
+
     args = parser.parse_args()
+
+    includes = []
+    if args.include:
+        for letter in args.include:
+            includes.append(letter)
+        args.include = includes
+
     return args
 
 
@@ -90,7 +117,7 @@ def clean_output(output):
         container = {
             'container_id': revised_line_split[0].strip(),
             'image_id': revised_line_split[1].strip(),
-            'command': revised_line_split[2].strip(),
+            'command': revised_line_split[2].strip().replace('"', ""),
             'created': revised_line_split[3].strip(),
             'status': revised_line_split[4].strip(),
             'status_date': get_container_time(revised_line_split[4].strip())
@@ -142,7 +169,7 @@ def get_container_time(val):
 
     if '(healthy' in cleaned:
         cleaned = cleaned[:cleaned.find('(healthy')].strip()
-        
+
     if 'seconds' in cleaned:
         digit = cleaned.replace(' seconds', '')
         digit = int(digit)
@@ -264,7 +291,7 @@ def order_containers(containers, args):
     return ordered_containers
 
 
-def pretty_print(containers, total_containers, args):
+def print_format(containers, total_containers, args):
     """
     Actually prints the stuff to the console.
 
@@ -275,36 +302,163 @@ def pretty_print(containers, total_containers, args):
     :param args: Parsed arguments from cli.
     :type args: <Namespace> obj
     """
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
     if args.search:
         print('Currently running containers with: %s\n' % args.search)
     else:
-        print('All Currently running docker containers\n')
+        print('All currently running docker containers\n')
+
+    if args.slim:
+        pretty_print_slim(containers, args)
+    else:
+        pretty_print_reg(containers, args)
+
+    print('\nTotal containers:\t%s' % total_containers)
+    if args.search:
+        print('Containers in search:\t%s' % len(containers))
+
+    return True
+
+
+def pretty_print_reg(containers, args):
+    """
+    Pretty print container data in regular long form, displaying all data.
+
+    :param containers: The containers found from docker ps.
+    :type containers: list
+    :param args: Parsed arguments from cli.
+    :type args: <Namespace> obj
+    """
+    print_content = []
     for container in containers:
-        print(BOLD + container['color'] + container['name'] + ENDC)
-        print('\t' + BOLD + 'Status:' + ENDC + '\t\t\t' + container['status'])
-        print('\t' + BOLD + 'Created:' + ENDC + '\t\t' + container['created'])
+        print_content.append(
+            [BOLD + container['color'] + container['name'] + ENDC])
+        print_content.append(
+            [
+                BOLD + 'Status:' + ENDC,
+                container['status']])
+
+        # Prep the created
+        print_content.append(
+            [
+                BOLD + 'Created:' + ENDC,
+                container['created']])
+
+        # Prep the ports
         if len(container['ports']) == 0:
-            print('\t' + BOLD + 'Ports:' + ENDC + '\t\t\t' + '')
+            print_content.append(
+                [
+                    BOLD + 'Ports:' + ENDC,
+                    ''])
         elif len(container['ports']) == 1:
-            print('\t' + BOLD + 'Ports:' + ENDC + '\t\t\t' + container['ports'][0])
+            print_content.append(
+                [
+                    BOLD + 'Ports:' + ENDC,
+                    container['ports'][0]])
         else:
             c = 0
             for container_port in container['ports']:
                 if c == 0:
-                    print('\t' + BOLD + 'Ports:' + ENDC + '\t\t\t' + container_port)
+                    print_content.append(
+                        [
+                            BOLD + 'Ports:' + ENDC,
+                            container_port])
                 else:
-                    print('\t\t\t\t' + container_port)
+                    print_content.append([container_port])
                 c += 1
 
-        print('\t' + BOLD + 'Container ID:' + ENDC + '\t\t' + container['container_id'])
-        print('\t' + BOLD + 'Image ID:' + ENDC + '\t\t' + container['image_id'])
-        print('\t' + BOLD + 'Command:' + ENDC + '\t\t' + container['command'])
-        print('')
-    print('Total Containers:\t%s' % total_containers)
-    if args.search:
-        print('Containers in Seach:\t%s' % len(containers))
+        # Prep the Container ID
+        print_content.append(
+            [
+                BOLD + 'Container ID:' + ENDC,
+                container['container_id']])
+
+        # Prep the Image ID
+        print_content.append(
+            [
+                BOLD + 'Image ID:' + ENDC,
+                container['image_id']])
+
+        # Prep the Command
+        print_content.append(
+            [
+                BOLD + 'Command:' + ENDC,
+                container['command']])
+        print_content.append(['', ''])
+
+    print_data(print_content)
+
+    return True
+
+
+def pretty_print_slim(containers, args):
+    """
+    Prints container ps in short form, displaying only requested info.
+
+    :param containers: The containers found from docker ps.
+    :type containers: list
+    :param args: Parsed arguments from cli.
+    :type args: <Namespace> obj
+    """
+    print_content = []
+    header = ['Name']
+
+    selected_includes = []
+    if args.include:
+        for include in args.include:
+            selected_includes.append(include)
+    else:
+        selected_includes += ['s', 'p']
+
+    for container in containers:
+            name_string = BOLD + container['color'] + container['name'] + ENDC
+            slim_content = [name_string]
+            for include in selected_includes:
+                # Add the status
+                if include == 's':
+                    slim_content.append(container['status'])
+                    if 'Status' not in header:
+                        header.append('Status')
+
+                # Add the port
+                if include == 'p':
+                    slim_content.append(" ".join(container['ports']))
+                    if 'Ports' not in header:
+                        header.append('Ports')
+
+                # Add the image
+                if include == 'i':
+                    slim_content.append(container['image_id'])
+                    if 'Image' not in header:
+                        header.append('Image')
+
+                # Add the created
+                if include == 'c':
+                    slim_content.append(container['created'])
+                    if 'Created' not in header:
+                        header.append('Created')
+
+                # Add the image
+                if include == 'm':
+                    slim_content.append(container['command'])
+                    if 'Command' not in header:
+                        header.append('Command')
+
+            print_content.append(slim_content)
+
+    print_content.insert(0, header)
+    print_data(print_content)
+
+
+def print_data(data):
+    """
+    Prints data evenly spaced in a table like format.
+
+    :param data: A List of lists to be printed and spaces evenly.
+    :type data: list
+    """
+    col_width = max(len(word) for row in data for word in row) + 2  # padding
+    for row in data:
+        print("".join(word.ljust(col_width) for word in row))
 
 
 if __name__ == '__main__':
