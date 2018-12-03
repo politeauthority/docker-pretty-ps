@@ -1,2 +1,2 @@
 git pull origin master
-cp ./docker-pretty-ps ~/bin/
+cp ../docker-pretty-ps /bin/
