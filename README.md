@@ -3,6 +3,7 @@ Tired of that awful super wide docker ps output? I'm always resizing the text on
 
 Run with ```docker-pretty-ps``` to get all running containers or ```docker-pretty-ps a-search```
 
+## Example Usage
 ```
 $ docker-pretty-ps web
 Currently running containers with: web
@@ -37,6 +38,33 @@ Total Containers:	12
 Containers in Seach:	3
 ```
 
+## Example --slim mode
+```
+$ ./docker-pretty-ps --slim
+All currently running docker containers
+
+Name                                             Status                                           Ports
+booj-etl_prometheus_1_304e5c77cad8  Up 36 seconds                                    0.0.0.0:9090->9090/tcp
+booj-etl_django_1_d8e889b5e36a      Up 7 hours                                       0.0.0.0:8000->8000/tcp
+
+Total containers:	2
+```
+
+## Full CLI Usage
+```
+usage: docker-pretty-ps [-h] [-s] [-i INCLUDE] [-o [ORDER]] [-r] [search]
+
+positional arguments:
+  search                Phrase to search containers, comma separate multiples
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s, --slim            Shows a slim minimal output.
+  -i, --include         Data points to add to slim display, (c)reated, (p)orts, (i)mage_id, co(m)mand
+  -o, --order           Order by, defaults to container start, allows: 'container', 'image'.
+  -r, --reverse         Reverses the display order.
+```
+
 # Install
 **Step 1:** *git* the repo
 ```
@@ -45,11 +73,12 @@ git clone https://github.com/politeauthority/docker-pretty-ps.git
 
 **Step 2:** move the docker-pretty-ps executable somewhere within your path, this may change depending on OS and setups, for most my systems this works.
 ```
-cp docker-pretty-ps/docker-pretty-ps ~/bin
+cp docker-pretty-ps/docker-pretty-ps /bin
 ```
 
 # Future
 * Add unit tests
-* Better install instructions.. probably
-* Ordering options
-* Support docker ps -a (to get all running and stopped containers on the host)
+* Better install instructions.. probably.
+* Support docker ps -a (to get all running and stopped containers on the host).
+* Create python native API.
+* Create an actual install package.

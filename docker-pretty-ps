@@ -54,7 +54,23 @@ def _parsed_args():
     :rtype: <Namespace> obj
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("search", nargs='?', default='', help="Phrase to search containers, comma separate multiples")
+    parser.add_argument(
+        "search",
+        nargs='?',
+        default='',
+        help="Phrase to search containers, comma separate multiples.")
+
+    parser.add_argument(
+        "-s",
+        "--slim",
+        default=False,
+        action='store_true',
+        help="Shows a slim minimal output.")
+    parser.add_argument(
+        "-i",
+        "--include",
+        default=[],
+        help="Data points to add to slim display, (c)reated, (p)orts, (i)mage_id, co(m)mand")
     parser.add_argument(
         "-o",
         "--order",
@@ -67,17 +83,6 @@ def _parsed_args():
         default=False,
         action='store_true',
         help="Reverses the display order.")
-    parser.add_argument(
-        "-s",
-        "--slim",
-        default=False,
-        action='store_true',
-        help="Shows a slim minimal output.")
-    parser.add_argument(
-        "-i",
-        "--include",
-        default=[],
-        help="")
 
     args = parser.parse_args()
 
