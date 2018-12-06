@@ -363,7 +363,7 @@ def pretty_print_reg(containers, args):
                             BOLD + 'Ports:' + ENDC,
                             container_port])
                 else:
-                    print_content.append([container_port])
+                    print_content.append(["", container_port])
                 c += 1
 
         # Prep the Container ID
@@ -456,9 +456,12 @@ def print_data(data):
     :param data: A List of lists to be printed and spaces evenly.
     :type data: list
     """
-    col_width = max(len(word) for row in data for word in row) + 2  # padding
-    for row in data:
-        print("".join(word.ljust(col_width) for word in row))
+    try:
+        col_width = max(len(word) for row in data for word in row) + 2  # padding
+        for row in data:
+            print("".join(word.ljust(col_width) for word in row))
+    except ValueError:
+        print('\033[91m' + "ERROR: " + ENDC + "Docker does not appear to be running.")
 
 
 if __name__ == '__main__':
