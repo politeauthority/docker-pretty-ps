@@ -212,7 +212,10 @@ def _clean_status_date(val):
     if '(healthy' in cleaned:
         cleaned = cleaned[:cleaned.find('(healthy')].strip()
 
-    if 'exited (' in cleaned:
+    elif '(health' in cleaned:
+        cleaned = cleaned[:cleaned.find(')' + 1)].strip()
+
+    elif 'exited (' in cleaned:
         cleaned = cleaned[cleaned.find(')') + 1:].strip()
 
     if 'seconds' in cleaned:
