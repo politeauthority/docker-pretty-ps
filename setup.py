@@ -7,7 +7,7 @@ import dockerprettyps
 import setuptools
 
 setuptools.setup(
-    name="Docker-Pretty-PS",
+    name="docker-pretty-ps",
     version="v%s" % dockerprettyps.__version__,
     author="politeauthority",
     author_email="fullteronalix0@gmail.com",

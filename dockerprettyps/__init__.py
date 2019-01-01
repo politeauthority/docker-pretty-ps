@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-"""Docker-Pretty-PS
+"""docker-pretty-ps
 Tired of that awful super wide docker ps output? Try docker-pretty-ps!
 
 Invoke by calling docker-pretty-ps and get an output like so,
+
+pa@host:~/$ docker-pretty-ps
 
 Name:         cool-freaking-container
 Container ID: 1a685dd9d351
@@ -77,17 +79,17 @@ def _parsed_args():
         default=False,
         action='store_true',
         help="Selects against all rnning and stopped containers")
-    parser.add_argument(
-        "-s",
-        "--slim",
-        default=False,
-        action='store_true',
-        help="Shows a slim minimal output.")
+    # parser.add_argument(
+    #     "-s",
+    #     "--slim",
+    #     default=False,
+    #     action='store_true',
+    #     help="Shows a slim minimal output.")
     parser.add_argument(
         "-i",
         "--include",
         default=[],
-        help="Data points to add to slim display, (c)reated, (p)orts, (i)mage_id, co(m)mand")
+        help="Data points to add to display, (c)reated, (p)orts, (i)mage_id, co(m)mand")
     parser.add_argument(
         "-o",
         "--order",
@@ -405,10 +407,11 @@ def print_format(containers, total_containers, total_running_containers, args):
         else:
             print('All docker containers\n')
 
-    if args.slim:
-        pretty_print_slim(containers, args)
-    else:
-        pretty_print_reg(containers, args)
+    # Removing slim from first release, having issues currently.
+    # if args.slim:
+    #     pretty_print_slim(containers, args)
+    # else:
+    pretty_print_reg(containers, args)
 
     print('\nTotal containers:\t%s' % total_containers)
     print('Total running:\t%s' % total_running_containers)
