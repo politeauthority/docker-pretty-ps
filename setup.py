@@ -10,6 +10,7 @@ setuptools.setup(
     name="Docker-Pretty-PS",
     version="v%s" % dockerprettyps.__version__,
     author="politeauthority",
+    author_email="fullteronalix0@gmail.com",
     url="https://github.com/politeauthority/docker-pretty-ps",
     download_url="https://github.com/politeauthority/docker-pretty-ps/archive/v0.0.1.tar.gz",
     packages=setuptools.find_packages(),
