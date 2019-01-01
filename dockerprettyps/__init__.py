@@ -29,13 +29,20 @@ BOLD = '\033[1m'
 RED = '\033[91m'
 GREEN = '\033[92m'
 
+__version__ = "0.0.1a01"
 
-def run():
+
+def run_cli():
     """
     Primary start of the application
 
     """
     args = _parsed_args()
+
+    # Print the Version
+    if args.version:
+        print("%sdocker-pretty-ps%s\nVersion: %s\n\n" % (BOLD, ENDC, __version__))
+        exit()
 
     raw_containers = get_raw_containers()
     containers = clean_output(raw_containers)
@@ -90,6 +97,12 @@ def _parsed_args():
     parser.add_argument(
         "-r",
         "--reverse",
+        default=False,
+        action='store_true',
+        help="Reverses the display order.")
+    parser.add_argument(
+        "-v",
+        "--version",
         default=False,
         action='store_true',
         help="Reverses the display order.")
@@ -618,7 +631,6 @@ def print_data_slim(data):
     try:
         # col_width = max(len(word) for row in data for word in row) + 2  # padding
         col_width = 50
-
         for row in data:
             c = 0
             # print(row)
@@ -634,4 +646,4 @@ def print_data_slim(data):
 
 
 if __name__ == '__main__':
-    run()
+    run_cli()
