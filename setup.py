@@ -12,7 +12,7 @@ setuptools.setup(
     author="politeauthority",
     author_email="fullteronalix0@gmail.com",
     url="https://github.com/politeauthority/docker-pretty-ps",
-    download_url="https://github.com/politeauthority/docker-pretty-ps/archive/v0.0.1.tar.gz",
+    download_url="https://github.com/politeauthority/docker-pretty-ps/archive/v0.0.1alpha.zip",
     packages=setuptools.find_packages(),
     scripts=['dockerprettyps/bin/docker-pretty-ps'],
     classifiers=[

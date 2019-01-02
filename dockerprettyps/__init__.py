@@ -31,7 +31,7 @@ BOLD = '\033[1m'
 RED = '\033[91m'
 GREEN = '\033[92m'
 
-__version__ = "0.0.1a03"
+__version__ = "0.0.1a4"
 
 
 def run_cli():
