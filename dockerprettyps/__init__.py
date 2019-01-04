@@ -26,12 +26,19 @@ from datetime import datetime, timedelta
 from operator import itemgetter
 import subprocess
 
+__version__ = "0.0.1a6"
+__title__ = """
+     _         _                                _   _
+  __| |___  __| |_____ _ _   ___   _ __ _ _ ___| |_| |_ _  _   ___   _ __ ___
+ / _` / _ \/ _| / / -_) '_| |___| | '_ \ '_/ -_)  _|  _| || | |___| | '_ (_-<
+ \__,_\___/\__|_\_\___|_|         | .__/_| \___|\__|\__|\_, |       | .__/__/
+                                  |_|                   |__/        |_|
+"""
+
 ENDC = '\033[0m'
 BOLD = '\033[1m'
 RED = '\033[91m'
 GREEN = '\033[92m'
-
-__version__ = "0.0.1a4"
 
 
 def run_cli():
@@ -43,7 +50,8 @@ def run_cli():
 
     # Print the Version
     if args.version:
-        print("%sdocker-pretty-ps%s\nVersion: %s\n\n" % (BOLD, ENDC, __version__))
+        print(__title__)
+        print("\t%sdocker-pretty-ps%s                                Version: %s\n\n" % (BOLD, ENDC, __version__))
         exit()
 
     raw_containers = get_raw_containers()
@@ -79,12 +87,12 @@ def _parsed_args():
         default=False,
         action='store_true',
         help="Selects against all rnning and stopped containers")
-    # parser.add_argument(
-    #     "-s",
-    #     "--slim",
-    #     default=False,
-    #     action='store_true',
-    #     help="Shows a slim minimal output.")
+    parser.add_argument(
+        "-s",
+        "--slim",
+        default=False,
+        action='store_true',
+        help="Shows a slim minimal output.")
     parser.add_argument(
         "-i",
         "--include",
@@ -122,12 +130,12 @@ def _parsed_args():
 
 def get_raw_containers():
     """
-    Runs the shell command to get the container data from Docker.
+    Runs the shell command to get the container all data from Docker.
 
     :returns: The raw information from the `docker ps` command.
     :rtype: list
     """
-    cmds = ['docker', 'ps', '-a']
+    cmds = ["docker", "ps", "-a"]
     out = subprocess.Popen(
         cmds,
         stdout=subprocess.PIPE,
@@ -146,33 +154,34 @@ def clean_output(output):
     :returns: Cleaned, usable output from docker-ps
     :rtype: list
     """
-    lines = output.split('\n')
+    output = output.decode("utf-8")
+    lines = output.split("\n")
     containers = []
     for line in lines[1:]:
-        line_split = line.split('  ')
+        line_split = line.split("  ")
         revised_line_split = []
         if len(line_split) == 1:
             continue
         for piece in line_split:
-            if piece and piece.strip() != '':
+            if piece and piece.strip() != "":
                 revised_line_split.append(piece)
         container = {
-            'container_id': revised_line_split[0].strip(),
-            'image_id': revised_line_split[1].strip(),
-            'command': revised_line_split[2].strip().replace('"', ""),
-            'created': revised_line_split[3].strip(),
-            'status': revised_line_split[4].strip(),
-            'status_date': _clean_status_date(revised_line_split[4].strip()),
-            'running': _clean_status(revised_line_split[4])
+            "container_id": revised_line_split[0].strip(),
+            "image_id": revised_line_split[1].strip(),
+            "command": revised_line_split[2].strip().replace('"', ""),
+            "created": revised_line_split[3].strip(),
+            "status": revised_line_split[4].strip(),
+            "status_date": _clean_status_date(revised_line_split[4].strip()),
+            "running": _clean_status(revised_line_split[4])
         }
 
         # Not all containers will have ports
         if len(revised_line_split) == 6:
-            container['ports'] = []
-            container['name'] = revised_line_split[5].strip()
+            container["ports"] = []
+            container["name"] = revised_line_split[5].strip()
         else:
-            container['ports'] = _clean_ports(revised_line_split[5])
-            container['name'] = revised_line_split[6].strip()
+            container["ports"] = _clean_ports(revised_line_split[5])
+            container["name"] = revised_line_split[6].strip()
         containers.append(container)
 
     containers = get_container_colors(containers)
@@ -187,7 +196,7 @@ def _clean_ports(port_str):
     :rtype: list
     """
     port_str = port_str.strip()
-    if ', ' not in port_str:
+    if ", " not in port_str:
         return [port_str]
 
     ports = port_str.split(', ')
@@ -400,28 +409,24 @@ def print_format(containers, total_containers, total_running_containers, args):
     :type args: <Namespace> obj
     """
     if args.search:
-        print('Currently running containers with: %s\n' % args.search)
+        print("Currently running containers with: %s\n" % args.search)
     else:
         if not args.all:
-            print('All currently running docker containers\n')
+            print("All currently running docker containers\n")
         else:
-            print('All docker containers\n')
+            print("All docker containers\n")
 
-    # Removing slim from first release, having issues currently.
-    # if args.slim:
-    #     pretty_print_slim(containers, args)
-    # else:
-    pretty_print_reg(containers, args)
+    pretty_print_fmt(containers, args)
 
-    print('\nTotal containers:\t%s' % total_containers)
-    print('Total running:\t%s' % total_running_containers)
+    print("\nTotal containers:\t%s" % total_containers)
+    print("Total running:\t\t%s" % total_running_containers)
     if args.search:
-        print('Containers in search:\t%s' % len(containers))
+        print("Containers in search:\t%s" % len(containers))
 
     return True
 
 
-def pretty_print_reg(containers, args):
+def pretty_print_fmt(containers, args):
     """
     Pretty print container data in regular long form, displaying all data.
 
@@ -430,226 +435,196 @@ def pretty_print_reg(containers, args):
     :param args: Parsed arguments from cli.
     :type args: <Namespace> obj
     """
-    selected_includes = []
+    selected_includes = ["r", "s", "c", "p", "n", "i", "m"]
+    if args.slim:
+        selected_includes = []
+
     if args.include:
         for include in args.include:
             selected_includes.append(include)
-    else:
-        selected_includes += ['r', 's', 'c', 'p', 'n', 'i', 'm']
 
-    print_content = []
+    print_content = {}
     for container in containers:
-        print_content.append(
-            [BOLD + container['color'] + container['name'] + ENDC, ""])
+        container_content = {
+            "display_name": container['color'] + container["name"] + ENDC,
+            "data": []
+        }
 
-        # Prep the State (r)
-        if args.all and 'r' in selected_includes:
-            if container['running']:
-                print_content.append([
-                    BOLD + "State:" + ENDC,
-                    GREEN + "[ON]" + ENDC])
-            else:
-                print_content.append([
-                    BOLD + "State:" + ENDC,
-                    RED + "[OFF]" + ENDC])
+        state_data = _handle_column_state(args, container, selected_includes)
+        if state_data:
+            container_content["data"] += state_data
 
-        # Prep the (s)tatus
-        if 's' in selected_includes:
-            print_content.append(
+        status_data = _handle_column_status(args, container, selected_includes)
+        if status_data:
+            container_content["data"] += status_data
+
+        ports_data = _handle_column_ports(args, container, selected_includes)
+        if ports_data:
+            container_content["data"] += ports_data
+
+        created_data = _handle_column_created(args, container, selected_includes)
+        if created_data:
+            container_content["data"] += created_data
+
+        # # Prep the Co(n)tainer ID
+        if "n" in selected_includes:
+            container_content["data"].append(
                 [
-                    BOLD + 'Status:' + ENDC,
-                    container['status']])
+                    BOLD + "\tContainer ID:" + ENDC,
+                    container["container_id"]])
 
-        # Prep the (c)reated
-        if 'c' in selected_includes:
-            print_content.append(
+        # # Prep the (i)mage ID
+        if "i" in selected_includes:
+            container_content["data"].append(
                 [
-                    BOLD + 'Created:' + ENDC,
-                    container['created']])
+                    BOLD + "\tImage ID:" + ENDC,
+                    container["image_id"]])
 
-        # Prep the (p)orts
-        if 'p' in selected_includes:
-            if len(container['ports']) == 0:
-                print_content.append(
-                    [
-                        BOLD + 'Ports:' + ENDC,
-                        ''])
-            elif len(container['ports']) == 1:
-                print_content.append(
-                    [
-                        BOLD + 'Ports:' + ENDC,
-                        container['ports'][0]])
-            else:
-                c = 0
-                for container_port in container['ports']:
-                    container_port = container_port.strip()
-                    if c == 0:
-                        print_content.append(
-                            [
-                                BOLD + 'Ports:' + ENDC,
-                                container_port])
-                    else:
-                        print_content.append(["", container_port])
-                    c += 1
-
-        # Prep the Co(n)tainer ID
-        if 'n' in selected_includes:
-            print_content.append(
+        # # Prep the Co(m)mand
+        if "m" in selected_includes:
+            container_content["data"].append(
                 [
-                    BOLD + 'Container ID:' + ENDC,
-                    container['container_id']])
+                    BOLD + "\tCommand:" + ENDC,
+                    container["command"]])
 
-        # Prep the (i)mage ID
-        if 'i' in selected_includes:
-            print_content.append(
-                [
-                    BOLD + 'Image ID:' + ENDC,
-                    container['image_id']])
-
-        # Prep the Co(m)mand
-        if 'm' in selected_includes:
-            print_content.append(
-                [
-                    BOLD + 'Command:' + ENDC,
-                    container['command']])
-        print_content.append(['', ''])
+        print_content[container["name"]] = container_content
 
     print_data(print_content)
 
     return True
 
 
-def pretty_print_slim(containers, args):
+def _handle_column_state(args, container, selected_includes):
     """
-    Prints container ps in short form, displaying only requested info.
+    Handles the selecting of the state (r) data for a container.
 
-    :param containers: The containers found from docker ps.
-    :type containers: list
-    :param args: Parsed arguments from cli.
-    :type args: <Namespace> obj
+    :param args: The CLI args
+    :type args: <class 'argparse.Namespace'>
+    :param container: The container to have information formatted for print.
+    :type container: dict
+    :param selected_includes: Includes to be selected for return.
+    :type selected_includes: list
+    :returns: The print values for created data.
+    :rtype: list
     """
-    print_content = []
-    header = [BOLD + 'Name' + ENDC]
+    print_d = []
+    if args.all and "r" in selected_includes:
+        if container["running"]:
+            print_d.append([
+                BOLD + "\tState:" + ENDC,
+                GREEN + "[ON]" + ENDC])
+        else:
+            print_d.append([
+                BOLD + "\tState:" + ENDC,
+                RED + "[OFF]" + ENDC])
 
-    selected_includes = []
-    if args.include:
-        for include in args.include:
-            selected_includes.append(include)
-    else:
-        selected_includes += ['r', 's']
-
-    # print(selected_includes)
-    # print(containers)
-    for container in containers:
-            name_string = BOLD + container['color'] + container['name'] + ENDC
-            slim_content = [name_string]
-            # print('\n\n\n')
-
-            # print(container)
-            # print(selected_includes)
-            for include in selected_includes:
-
-                # Add the state (r)
-                if args.all and include == 'r':
-                    if 'State' not in header:
-                        header.append(BOLD + 'State' + ENDC)
-                    if container['running']:
-                        slim_content.append(
-                            GREEN + "[ON]" + ENDC)
-                    else:
-                        slim_content.append(
-                            RED + "[OFF]" + ENDC)
-
-                # Add the (s)tatus
-                if include == 's':
-                    slim_content.append(container['status'])
-                    if 'Status' not in header:
-                        header.append(BOLD + 'Status' + ENDC)
-
-                # Add the (c)reated
-                if include == 'c':
-                    slim_content.append(container['created'])
-                    if 'Created' not in header:
-                        header.append(BOLD + 'Created' + ENDC)
-
-                # Add the (p)orts
-                if include == 'p':
-                    slim_content.append(" ".join(container['ports']))
-                    if 'Ports' not in header:
-                        header.append(BOLD + 'Ports' + ENDC)
-
-                # Add the (i)mage
-                if include == 'i':
-                    slim_content.append(container['image_id'])
-                    if 'Image' not in header:
-                        header.append('Image')
-
-                # Add the co(m)mand
-                if include == 'm':
-                    slim_content.append(container['command'])
-                    if 'Command' not in header:
-                        header.append('Command')
-
-            print_content.append(slim_content)
-
-    print_content.insert(0, header)
-    print_data_slim(print_content)
+    return print_d
 
 
-def print_data(data):
+def _handle_column_status(args, container, selected_includes):
     """
-    Prints data evenly spaced in a table like format.
+    Handles the selecting of the state (r) data for a container.
 
-    :param data: A List of lists to be printed and spaces evenly.
-    :type data: list
+    :param args: The CLI args
+    :type args: <class 'argparse.Namespace'>
+    :param container: The container to have information formatted for print.
+    :type container: dict
+    :param selected_includes: Includes to be selected for return.
+    :type selected_includes: list
+    :returns: The print values for created data.
+    :rtype: list
     """
-    try:
-        # col_width = max(len(word) for row in data for word in row) + 5  # padding
-        col_width = 30
-        for row in data:
+    print_d = []
+    if "s" in selected_includes:
+        print_d.append(
+            [
+                BOLD + "\tStatus:" + ENDC,
+                container["status"]])
+
+    return print_d
+
+
+def _handle_column_ports(args, container, selected_includes):
+    """
+    Handles the selecting of the port (p) data for a container for printing.
+
+    :param args: The CLI args
+    :type args: <class 'argparse.Namespace'>
+    :param container: The container to have information formatted for print.
+    :type container: dict
+    :param selected_includes: Includes to be selected for return.
+    :type selected_includes: list
+    :returns: The print values for created data.
+    :rtype: list
+    """
+    print_d = []
+    # Prep the (p)orts
+    if "p" in selected_includes:
+        if len(container["ports"]) == 0:
+            print_d.append(
+                [
+                    BOLD + "\tPorts:" + ENDC,
+                    ''])
+        elif len(container["ports"]) == 1:
+            print_d.append(
+                [
+                    BOLD + "\tPorts:" + ENDC,
+                    container["ports"][0]])
+        else:
             c = 0
-            for cell in row:
-                spacing = ""
-                if c == 0 and len(row[0]) == 0:
-                    # print(col_width)
-                    for char in range(1, 11):  # hardcoding this for now... @todo
-                        spacing += " "
-
-                if spacing and c == 0:
-                    print(spacing),
-                    print("".join(cell)),
-                else:
-                    print("".join(cell.ljust(col_width))),
-            c += 1
-            if c == len(row) - 1:
-                print("")
-            # print("".join(word.ljust(col_width) for word in row))
-    except ValueError:
-        print('\033[91m' + "ERROR: " + ENDC + "Docker does not appear to be running.")
-
-
-def print_data_slim(data):
-    """
-    Prints data evenly spaced in a table like format.
-    :param data: A List of lists to be printed and spaces evenly.
-    :type data: list
-    """
-    try:
-        # col_width = max(len(word) for row in data for word in row) + 2  # padding
-        col_width = 50
-        for row in data:
-            c = 0
-            # print(row)
-            for cell in row:
+            for container_port in container["ports"]:
+                container_port = container_port.strip()
                 if c == 0:
-                    print(cell.ljust(50)),
+                    print_d.append(
+                        [
+                            BOLD + "\tPorts:" + ENDC,
+                            container_port])
                 else:
-                    print(cell.ljust(20)),
+                    print_d.append(["", container_port])
                 c += 1
-            print('')
-    except ValueError:
-        print('\033[91m' + "ERROR: " + ENDC + "Docker does not appear to be running.")
+
+    return print_d
 
 
-if __name__ == '__main__':
+def _handle_column_created(args, container, selected_includes):
+    """
+    Handles the selecting of the created (c) data for a container.
+
+    :param args: The CLI args
+    :type args: <class 'argparse.Namespace'>
+    :param container: The container to have information formatted for print.
+    :type container: dict
+    :param selected_includes: Includes to be selected for return.
+    :type selected_includes: list
+    :returns: The print values for created data.
+    :rtype: list
+    """
+    print_d = []
+    if "c" in selected_includes:
+        print_d.append(
+            [
+                BOLD + "\tCreated:" + ENDC,
+                container["created"]])
+    return print_d
+
+
+def print_data(container_info):
+    """
+    Prints data evenly spaced in a table like format.
+
+    :param container_info: A List of lists to be printed and spaces evenly.
+    :type container_info: dict
+    """
+    for container_name, container in container_info.items():
+        print(container["display_name"])
+        if not container["data"]:
+            continue
+        col_width = max(len(cell) for row in container["data"] for cell in row) + 2  # padding
+
+        for row in container["data"]:
+            print("".join(cell.ljust(col_width) for cell in row))
+        print("")
+
+
+if __name__ == "__main__":
     run_cli()
