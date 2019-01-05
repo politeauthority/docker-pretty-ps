@@ -26,7 +26,9 @@ from datetime import datetime, timedelta
 from operator import itemgetter
 import subprocess
 
-__version__ = "0.0.1a6"
+from dockerprettyps import errors
+
+__version__ = "0.0.1a65"
 __title__ = """
      _         _                                _   _
   __| |___  __| |_____ _ _   ___   _ __ _ _ ___| |_| |_ _  _   ___   _ __ ___
@@ -43,18 +45,20 @@ GREEN = '\033[92m'
 
 def run_cli():
     """
-    Primary start of the application
+    Primary start of the CLI application
 
     """
     args = _parsed_args()
 
-    # Print the Version
     if args.version:
-        print(__title__)
-        print("\t%sdocker-pretty-ps%s                                Version: %s\n\n" % (BOLD, ENDC, __version__))
-        exit()
+        version()
 
-    raw_containers = get_raw_containers()
+    try:
+        raw_containers = get_raw_containers()
+    except errors.BadResponseDockerEngine:
+        print("%sError:%s Bad response from the Docker Engine" % (RED, ENDC))
+        exit(1)
+
     containers = clean_output(raw_containers)
     total_containers = len(containers)
     total_running_containers = _get_num_running_containers(containers)
@@ -128,12 +132,22 @@ def _parsed_args():
     return args
 
 
+def version():
+    """
+    Displays docker-pretty-ps version to the cli.
+
+    """
+    print(__title__)
+    print("\t%sdocker-pretty-ps%s                                Version: %s\n\n" % (BOLD, ENDC, __version__))
+    exit()
+
+
 def get_raw_containers():
     """
     Runs the shell command to get the container all data from Docker.
 
     :returns: The raw information from the `docker ps` command.
-    :rtype: list
+    :rtype: str
     """
     cmds = ["docker", "ps", "-a"]
     out = subprocess.Popen(
@@ -141,6 +155,9 @@ def get_raw_containers():
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT)
     stdout, stderr = out.communicate()
+    stdout = stdout.decode("utf-8")
+    if "Error" in stdout or "Cannot connect" in stdout:
+        raise errors.BadResponseDockerEngine
 
     return stdout
 
@@ -154,7 +171,6 @@ def clean_output(output):
     :returns: Cleaned, usable output from docker-ps
     :rtype: list
     """
-    output = output.decode("utf-8")
     lines = output.split("\n")
     containers = []
     for line in lines[1:]:
