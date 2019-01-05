@@ -35,10 +35,10 @@ tradetrack_dev_web_1
 	Command:	    	    "gunicorn -b 0.0.0.0…"
 
 Total Containers:	12
-Containers in Seach:	3
+Containers in Search:	3
 ```
 
-## Example --slim mode
+## Example --slim, -s mode
 ```
 $ ./docker-pretty-ps --slim
 All currently running docker containers
@@ -52,17 +52,24 @@ Total containers:	2
 
 ## Full CLI Usage
 ```
-usage: docker-pretty-ps [-h] [-s] [-i INCLUDE] [-o [ORDER]] [-r] [search]
+usage: docker-pretty-ps [-h] [-a] [-s] [-i INCLUDE] [-o [ORDER]] [-r] [-v]
+                        [search]
 
 positional arguments:
-  search                Phrase to search containers, comma separate multiples
+  search                Phrase to search containers, comma separate multiples.
 
 optional arguments:
   -h, --help            show this help message and exit
+  -a, --all             Selects against all rnning and stopped containers
   -s, --slim            Shows a slim minimal output.
-  -i, --include         Data points to add to slim display, (c)reated, (p)orts, (i)mage_id, co(m)mand
-  -o, --order           Order by, defaults to container start, allows: 'container', 'image'.
+  -i INCLUDE, --include INCLUDE
+                        Data points to add to display, (c)reated, (p)orts,
+                        (i)mage_id, co(m)mand
+  -o [ORDER], --order [ORDER]
+                        Order by, defaults to container start, allows
+                        'container', 'image'.
   -r, --reverse         Reverses the display order.
+  -v, --version         Reverses the display order.
 ```
 
 # Install
