@@ -635,10 +635,13 @@ def print_data(container_info):
         print(container["display_name"])
         if not container["data"]:
             continue
-        col_width = max(len(cell) for row in container["data"] for cell in row) + 2  # padding
+        col_width = 30
 
         for row in container["data"]:
-            print("".join(cell.ljust(col_width) for cell in row))
+            if len(row[0]) == 0:
+                print("                              %s" % row[1])
+            else:
+                print("%s %s" % (row[0].ljust(col_width), row[1]))
         print("")
 
 
