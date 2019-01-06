@@ -5,20 +5,27 @@ Tired of that awful super wide docker ps output? Try docker-pretty-ps!
 Invoke by calling docker-pretty-ps and get an output like so,
 
 pa@host:~/$ docker-pretty-ps
+All currently running docker containers
 
-Name:         cool-freaking-container
-Container ID: 1a685dd9d351
-Image ID:     28bbeb325405
-Created:      9 days ago
-Status:       Up 43 minutes
-Command:      "tail -f /dev/null"
+bad-actor-services_bad-actor-services-data_1
+    Status:               Up About an hour
+    Ports:
+    Created:              4 days ago
+    Container ID:         815409a7e562
+    Image ID:             bad-actor-services_bad-actor-services-data
+    Command:              tail -f /dev/null
 
-Name:         some-postgres
-Container ID: 0370c73b4951
-Image ID:     postgres:alpine
-Created:      9 days ago
-Status:       Up 43 minutes
-Command:      "/bin/sh -c 'while t..."
+bad-actor-services_bad-actor-services-web_1
+    Status:               Up About an hour
+    Ports:                0.0.0.0:5000->5000/tcp
+                          0.0.0.0:5001->80/tcp
+    Created:              4 days ago
+    Container ID:         cc74d0f53d11
+    Image ID:             bad-actor-services_bad-actor-services-web
+    Command:              tail -f /dev/null
+
+Total containers:   9
+Total running:      2
 
 """
 import argparse
@@ -28,7 +35,7 @@ import subprocess
 
 from dockerprettyps import errors
 
-__version__ = "0.0.1a66"
+__version__ = "0.0.1a7"
 __title__ = """
      _         _                                _   _
   __| |___  __| |_____ _ _   ___   _ __ _ _ ___| |_| |_ _  _   ___   _ __ ___
@@ -123,11 +130,19 @@ def _parsed_args():
 
     args = parser.parse_args()
 
+    # Parse includes
     includes = []
     if args.include:
         for letter in args.include:
             includes.append(letter)
         args.include = includes
+
+    # Parse searches
+    if ',' in args.search:
+        searches = args.search.split(',')
+    else:
+        searches = [args.search]
+    args.search = searches
 
     return args
 
@@ -357,14 +372,9 @@ def filter_containers(containers, args):
     if not args.search and args.all:
         return containers
 
-    if ',' in args.search:
-        searches = args.search.split(',')
-    else:
-        searches = [args.search]
-
     filtered_containers = []
     for container in containers:
-        for search in searches:
+        for search in args.search:
             if search in container['name']:
                 filtered_containers.append(container)
                 break
@@ -386,8 +396,8 @@ def order_containers(containers, args):
 
     :param containers: The containers found from docker ps.
     :type containers: list
-    :param args: Parsed arguments from cli.
-    :type args: <Namespace> obj
+    :param args: The CLI args
+    :type args: <class 'argparse.Namespace'>
     :returns: The ordered list of dicts of containers.
     :rtype: list
     """
@@ -425,14 +435,17 @@ def print_format(containers, total_containers, total_running_containers, args):
     :type args: <Namespace> obj
     """
     if args.search:
-        print("Currently running containers with: %s\n" % args.search)
+        if not args.all:
+            print('Currently running containers with: "%s" \n' % '", "'.join(args.search))
+        else:
+            print('All cotnainers containers with: "%s" \n' % '", "'.join(args.search))
     else:
         if not args.all:
             print("All currently running docker containers\n")
         else:
             print("All docker containers\n")
 
-    pretty_print_fmt(containers, args)
+    pretty_print_fmt_containers(containers, args)
 
     print("\nTotal containers:\t%s" % total_containers)
     print("Total running:\t\t%s" % total_running_containers)
@@ -442,7 +455,7 @@ def print_format(containers, total_containers, total_running_containers, args):
     return True
 
 
-def pretty_print_fmt(containers, args):
+def pretty_print_fmt_containers(containers, args):
     """
     Pretty print container data in regular long form, displaying all data.
 
@@ -452,7 +465,7 @@ def pretty_print_fmt(containers, args):
     :type args: <Namespace> obj
     """
     selected_includes = ["r", "s", "c", "p", "n", "i", "m"]
-    if args.slim:
+    if args.slim or args.include:
         selected_includes = []
 
     if args.include:
@@ -462,52 +475,80 @@ def pretty_print_fmt(containers, args):
     print_content = {}
     for container in containers:
         container_content = {
-            "display_name": container['color'] + container["name"] + ENDC,
+            "display_name": container_display_name(args, container),
             "data": []
         }
 
-        state_data = _handle_column_state(args, container, selected_includes)
-        if state_data:
-            container_content["data"] += state_data
-
-        status_data = _handle_column_status(args, container, selected_includes)
-        if status_data:
-            container_content["data"] += status_data
-
-        ports_data = _handle_column_ports(args, container, selected_includes)
-        if ports_data:
-            container_content["data"] += ports_data
-
-        created_data = _handle_column_created(args, container, selected_includes)
-        if created_data:
-            container_content["data"] += created_data
-
-        # # Prep the Co(n)tainer ID
+        # Prep the container Co(n)tainer ID
         if "n" in selected_includes:
             container_content["data"].append(
                 [
                     BOLD + "\tContainer ID:" + ENDC,
                     container["container_id"]])
 
-        # # Prep the (i)mage ID
+        # Prep the container (i)mage ID
         if "i" in selected_includes:
             container_content["data"].append(
                 [
                     BOLD + "\tImage ID:" + ENDC,
                     container["image_id"]])
 
-        # # Prep the Co(m)mand
+        # Prep the container co(m)mand
         if "m" in selected_includes:
             container_content["data"].append(
                 [
                     BOLD + "\tCommand:" + ENDC,
                     container["command"]])
 
+        # Prep the container (c)reated
+        created_data = _handle_column_created(args, container, selected_includes)
+        if created_data:
+            container_content["data"] += created_data
+
+        # Prep the container (s)tatus
+        status_data = _handle_column_status(args, container, selected_includes)
+        if status_data:
+            container_content["data"] += status_data
+
+        # Prep the container state (r)
+        state_data = _handle_column_state(args, container, selected_includes)
+        if state_data:
+            container_content["data"] += state_data
+
+        # Prep the container (p)orts
+        ports_data = _handle_column_ports(args, container, selected_includes)
+        if ports_data:
+            container_content["data"] += ports_data
+
         print_content[container["name"]] = container_content
 
     print_data(print_content)
 
     return True
+
+
+def container_display_name(args, container):
+    """
+    Creates the container display name with formatting and colors.
+
+    :param args: The CLI args
+    :type args: <class 'argparse.Namespace'>
+    :param container: The container to have information formatted for print.
+    :type container: dict
+    :returns: The container's display name with color and formatting.
+    :rtype: str
+    """
+    if not args.search:
+        return container["color"] + container["name"] + ENDC
+    else:
+        highlighted_name = container["color"] + container["name"]
+
+        for search in args.search:
+            highlighted_name = highlighted_name.replace(
+                search,
+                BOLD + container["color"] + search + ENDC + container["color"])
+
+        return highlighted_name + ENDC
 
 
 def _handle_column_state(args, container, selected_includes):
@@ -539,7 +580,7 @@ def _handle_column_state(args, container, selected_includes):
 
 def _handle_column_status(args, container, selected_includes):
     """
-    Handles the selecting of the state (r) data for a container.
+    Handles the selecting of the status (s) data for a container.
 
     :param args: The CLI args
     :type args: <class 'argparse.Namespace'>
