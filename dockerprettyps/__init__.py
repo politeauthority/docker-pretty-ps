@@ -35,7 +35,7 @@ import subprocess
 
 from dockerprettyps import errors
 
-__version__ = "0.0.1a7"
+__version__ = "0.0.1a71"
 __title__ = """
      _         _                                _   _
   __| |___  __| |_____ _ _   ___   _ __ _ _ ___| |_| |_ _  _   ___   _ __ ___
@@ -140,6 +140,8 @@ def _parsed_args():
     # Parse searches
     if ',' in args.search:
         searches = args.search.split(',')
+    elif args.search == "":
+        searches = []
     else:
         searches = [args.search]
     args.search = searches
@@ -372,13 +374,18 @@ def filter_containers(containers, args):
     if not args.search and args.all:
         return containers
 
+    # Filter containers by search criteria.
     filtered_containers = []
-    for container in containers:
-        for search in args.search:
-            if search in container['name']:
-                filtered_containers.append(container)
-                break
+    if args.search:
+        for container in containers:
+            for search in args.search:
+                if search in container['name']:
+                    filtered_containers.append(container)
+                    break
+    else:
+        filtered_containers = containers
 
+    # Filter only running containers.
     more_filtered_containers = []
     if not args.all:
         for container in filtered_containers:
@@ -676,8 +683,8 @@ def print_data(container_info):
         print(container["display_name"])
         if not container["data"]:
             continue
-        col_width = 30
 
+        col_width = 30
         for row in container["data"]:
             if len(row[0]) == 0:
                 print("                              %s" % row[1])
