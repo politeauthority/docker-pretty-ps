@@ -1,8 +1,8 @@
 # docker-pretty-ps (v.0.0.1a72)
-Tired of that awful super wide ```docker ps``` output? I'm always resizing the text on my terminal to see what ```docker ps``` is outputting, and it's making me go blind. Try docker-pretty-ps! Just run ```docker-pretty-ps``` and get your output long, instead of wide! **Now with COLORS!**
+Tired of that awful super wide ```docker ps``` output? I'm always shrinking my terminal output just to see what ```docker ps``` is saying... and it's making me go blind!
+Try docker-pretty-ps! Just run ```docker-pretty-ps``` and get your output long, instead of wide! **Now with COLORS!**
 
-Run with ```docker-pretty-ps``` to get all running containers.
-You can also search containers, containing a search phrase, such as ```docker-pretty-ps webserver```
+Simply run ```docker-pretty-ps``` to get all running containers. In a beautiful colored long output, with only the data you requested. You can also narrow your request with a search against containers with a name matching a search phrase; such as ```docker-pretty-ps webserver```
 
 ## Example: Most Basic
 run ```docker-pretty-ps``` to get output of all currently running containers, or inlcude an optional argument to search containers who's name match a phrase. Need to collect containers with multiple different phrases? Just comma sepperate them (```docker-pretty-ps web,mail```)
@@ -41,7 +41,7 @@ Containers in Search:   3
 ```
 
 ## Example: Slim output --slim, (-s) mode
-Typical docker-prettty-ps too long for ya? Don't fert! ```docker-pretty-ps```` has an answer to that, use ```-s``` or ```--slim``` cli argument to get a slim output.
+Typical docker-prettty-ps too long for ya? Don't fret! ```docker-pretty-ps``` has an answer to that. Use ```-s``` or ```--slim``` cli argument to get a slim output.
 ```
 $ docker-pretty-ps -s
 All currently running docker containers
@@ -60,7 +60,7 @@ Total running:      5
 Sure, thats nice to know all containers on a host, but you also need to know what ports and the creation date, (for example).
 Well then just the ```--include``` or ```-i``` cli arg.
 
-Get current running containers wiwth just the **c**reation time and the **port** configuration. Use the command ```docker-pretty-ps -s -i=cp```
+Get current running containers with just the **c**reation time and the **p**ort configuration. Use the command ```docker-pretty-ps -s -i=cp```
 ```
 $ docker-pretty-ps -s -i=cp
 All currently running docker containers
@@ -159,12 +159,11 @@ optional arguments:
 **Step 1:** *git* the repo
 ```
 git clone https://github.com/politeauthority/docker-pretty-ps.git
+cd docker-pretty-ps
+python3 setup.py build
+python3 setup install
 ```
-
-**Step 2:** move the docker-pretty-ps executable somewhere within your path, this may change depending on OS and setups, for most my systems this works.
-```
-cp docker-pretty-ps/docker-pretty-ps /bin
-```
+Too annoying to do all that? Don't worry we'll be available through pip very shortly!
 
 # Future
 * Add unit tests!
