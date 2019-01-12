@@ -30,12 +30,13 @@ Total running:      2
 """
 import argparse
 from datetime import datetime, timedelta
+import json
 from operator import itemgetter
 import subprocess
 
 from dockerprettyps import errors
 
-__version__ = "0.0.1a72"
+__version__ = "0.0.1a74"
 __title__ = """
      _         _                                _   _
   __| |___  __| |_____ _ _   ___   _ __ _ _ ___| |_| |_ _  _   ___   _ __ ___
@@ -71,11 +72,15 @@ def run_cli():
     total_running_containers = _get_num_running_containers(containers)
     containers = filter_containers(containers, args)
     containers = order_containers(containers, args)
-    print_format(
-        containers,
-        total_containers,
-        total_running_containers,
-        args)
+
+    if args.json:
+        give_json(containers, args)
+    else:
+        print_format(
+            containers,
+            total_containers,
+            total_running_containers,
+            args)
 
 
 def _parsed_args():
@@ -121,6 +126,12 @@ def _parsed_args():
         default=False,
         action='store_true',
         help="Reverses the display order.")
+    parser.add_argument(
+        "-j",
+        "--json",
+        default="",
+        action='store_true',
+        help="Instead of printing, creates a json response of the container data.")
     parser.add_argument(
         "-v",
         "--version",
@@ -366,8 +377,8 @@ def filter_containers(containers, args):
 
     :param containers: The containers found from docker ps.
     :type containers: list
-    :param searches: The search phrase to search container names.
-    :type searches: str
+    :param args: The CLI args
+    :type args: <class 'argparse.Namespace'>
     :returns: The filtered list of dicts of containers.
     :rtype: list
     """
@@ -691,6 +702,43 @@ def print_data(container_info):
             else:
                 print("%s %s" % (row[0].ljust(col_width), row[1]))
         print("")
+
+
+def give_json(containers, args):
+    """
+    This thing is supposed to give pretty output, but maybe someone... somewhere just needs JSON. Well here we go!
+    Here we will give JSON over standard out when the -j arg is supplied.
+
+    :param containers: The containers found from docker ps.
+    :type containers: list
+    :param args: The CLI args
+    :type args: <class 'argparse.Namespace'>
+    """
+    clean_date_containers = _json_container_dates(containers)
+    ret_dict = {
+        "total_containers": len(containers),
+        "objects": clean_date_containers
+    }
+    print(json.dumps(ret_dict, indent=4, sort_keys=True))
+    # print(json.dumps(ret_dict))
+
+
+def _json_container_dates(containers):
+    """
+    Moves container "status date" to a JSON friendly value.
+
+    :param containers: The containers found from docker ps.
+    :type containers: list
+    :returns: The containers found from docker ps, with JSON friedly dates.
+    :rtype: list
+    """
+    clean_containers = []
+    for container in containers:
+        tmp_container = container
+        tmp_container["status_date"] = str(tmp_container["status_date"])
+        clean_containers.append(tmp_container)
+
+    return clean_containers
 
 
 if __name__ == "__main__":
