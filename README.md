@@ -1,14 +1,13 @@
-# docker-pretty-ps (v.0.0.1a72)
-Tired of that awful super wide ```docker ps``` output? I'm always shrinking my terminal output just to see what ```docker ps``` is saying... and it's making me go blind!
-Try docker-pretty-ps! Just run ```docker-pretty-ps``` and get your output long, instead of wide! **Now with COLORS!**
+# docker-pretty-ps (v.0.0.1a75)
+Tired of that awful super wide ```docker ps``` output? I'm always shrinking my terminal output just to see what ```docker ps``` is trying saying... and it's making me go blind. If you commiserate, try `docker-pretty-ps`! Just run ```docker-pretty-ps``` and get your output long, instead of wide and with **COLORS!**
 
-Simply run ```docker-pretty-ps``` to get all running containers. In a beautiful colored long output, with only the data you requested. You can also narrow your request with a search against containers with a name matching a search phrase; such as ```docker-pretty-ps webserver```
+Use ```docker-pretty-ps``` to get all running containers, stopped containers, search for containers. You can do all this in a beautiful, colored, long output with only the data you requested. Narrow your request with a search against containers with a name matching a search phrase; such as ```docker-pretty-ps webserver```.
 
-## Example: Most Basic
+## Most Basic Example
 run ```docker-pretty-ps``` to get output of all currently running containers, or inlcude an optional argument to search containers who's name match a phrase. Need to collect containers with multiple different phrases? Just comma sepperate them (```docker-pretty-ps web,mail```)
 ```
 $ docker-pretty-ps web
-Currently running containers with: web
+Currently running containers with: web, mail
 
 bad-actor-services_bad-actor-services-web_1
     Status:                Up 3 days
@@ -36,11 +35,12 @@ tradetrack_dev_web_1
     Image ID:               tradetrack_dev_web
     Command:                "gunicorn -b 0.0.0.0…"
 
-Total Containers:   12
-Containers in Search:   3
+Total containers:      14
+Total running:         5
+Containers in search:  3
 ```
 
-## Example: Slim output --slim, (-s) mode
+## Example Slim Output --slim, (-s) Mode
 Typical docker-prettty-ps too long for ya? Don't fret! ```docker-pretty-ps``` has an answer to that. Use ```-s``` or ```--slim``` cli argument to get a slim output.
 ```
 $ docker-pretty-ps -s
@@ -56,7 +56,7 @@ Total containers:   21
 Total running:      5
 ```
 
-## Example --slim (-s) mode with just a pinch more data: --inlcude (-i)
+## Example --slim (-s) Mode with Just a Pinch More Data --inlcude (-i)
 Sure, thats nice to know all containers on a host, but you also need to know what ports and the creation date, (for example).
 Well then just the ```--include``` or ```-i``` cli arg.
 
@@ -81,7 +81,23 @@ nginx-proxy
 Total containers:   5
 Total running:      3
 ```
-### Other available arguments to --inlcude (-i):
+### The other --inlcude (-i) Argument Options
+The `-i` argument allows a user to specify the columns they want to recieve back.
+```
+docker-pretty-ps -i ns
+```
+This will return just the container ID and the container status, like the following.
+```
+All currently running docker containers
+
+bad-actor-services_bad-actor-services-web_1
+    Container ID:         85cc746f77a4
+    Status:               Up 3 hours
+
+Total containers:   14
+Total running:      1
+```
+#### --include column namespaces
 - **n** - Co(**n**)tainer ID
 - **i** - Container (**i**)mage ID
 - **m** - Container co(**m**)mand
@@ -89,7 +105,7 @@ Total running:      3
 - **s** - Container (**s**)tatus
 - **p** - Container (**p**)orts
 
-## Example: All containers on system, on or off --all (-a)
+## Example, All containers on system, on or off --all (-a)
 Run ```docker-pretty-ps -all``` against all containers running or not on your system.
 ```
 $ docker-pretty-ps -a
