@@ -171,7 +171,7 @@ def version():
     print(__title__)
     print("\t%sdocker-pretty-ps%s                                Version: %s" % (BOLD, ENDC, __version__))
     print("%s@politeauthority" % spacing)
-    print("%shttps://github.com/politeauthority/docker-pretty-ps\n\n" %  spacing)
+    print("%shttps://github.com/politeauthority/docker-pretty-ps\n\n" % spacing)
 
     return True
 

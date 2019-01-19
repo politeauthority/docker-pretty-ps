@@ -12,6 +12,14 @@ from .data.cli_args import CliArgs
 
 class TestDockerPrettyPs(object):
 
+    def load_test_data(self, phile):
+        """
+        """
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        the_data_phile = "ps_data_" + phile + ".txt"
+        data = open(os.path.join(dir_path, "data", the_data_phile), "r").read()
+        return data
+
     def test_version(self):
         """
         Tests dockerprettyps.version() method, basically making sure it doesnt crash.
@@ -22,14 +30,19 @@ class TestDockerPrettyPs(object):
 
     def test_clean_output(self):
         """
+        Tests the dockerprettyps.clean_output() method to make sure it takes the standard out from a 'docker ps' command
+        and properly translated that into a usable set of docker container data.
+
         """
         dir_path = os.path.dirname(os.path.realpath(__file__))
         data = open(os.path.join(dir_path, "data", "docker_ps_data_health.txt"), "r").read()
+
         containers = dockerprettyps.clean_output(data)
-        assert containers
+        assert isinstance(containers, list)
 
     def test__clean_ports(self):
         """
+        Tests the dockerprettyps._clean_ports() method ensure that we break apart ports properly as a trimmed list.
 
         """
         port_str = ' 0.0.0.0:5000->5000/tcp, 0.0.0.0:5001->80/tcp'
@@ -66,8 +79,9 @@ class TestDockerPrettyPs(object):
         to try and assign a semi unique color to an instance based on it's container name.
 
         """
+        containers = test_ps_data.ps_containers
         colorless_containers = []
-        for c in test_ps_data.ps_containers:
+        for c in containers:
             c.pop('color')
             colorless_containers.append(c)
 
