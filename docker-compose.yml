@@ -1,0 +1,7 @@
+version: '2'
+services:
+  docker-pretty-ps:
+    build: ./
+    command: tail -f /dev/null
+    volumes:
+      - ./:/opt/docker-pretty-ps

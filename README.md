@@ -1,24 +1,18 @@
-# docker-pretty-ps (v.0.0.1a72)
-Tired of that awful super wide ```docker ps``` output? I'm always shrinking my terminal output just to see what ```docker ps``` is saying... and it's making me go blind!
-Try docker-pretty-ps! Just run ```docker-pretty-ps``` and get your output long, instead of wide! **Now with COLORS!**
+# docker-pretty-ps (v.0.0.1a76)
+Tired of that awful super wide ```docker ps``` output? I'm always shrinking my terminal output just to see what ```docker ps``` is trying saying... and it's making me go blind. If you commiserate, try `docker-pretty-ps`! Just run ```docker-pretty-ps``` and get your output long, instead of wide and with **COLORS!**
 
-Simply run ```docker-pretty-ps``` to get all running containers. In a beautiful colored long output, with only the data you requested. You can also narrow your request with a search against containers with a name matching a search phrase; such as ```docker-pretty-ps webserver```
+Use ```docker-pretty-ps``` to get all running containers, stopped containers, search for containers. You can do all this in a beautiful, colored, long output with only the data you requested. Narrow your request with a search against containers with a name matching a search phrase; such as ```docker-pretty-ps webserver```.
 
-## Example: Most Basic
-run ```docker-pretty-ps``` to get output of all currently running containers, or inlcude an optional argument to search containers who's name match a phrase. Need to collect containers with multiple different phrases? Just comma sepperate them (```docker-pretty-ps web,mail```)
-```
+### Why docker-pretty-ps though? (or TLDR)
+- `docker ps` output is awful. Very wide output, yet not very helpful.
+- `docker-pretty-ps` uses no 3rd party python packages, so it will run on any system that can run python, and Docker.
+- You're a Docker wizard and need just a little bit more.
+
+## Basic Example
+run ```docker-pretty-ps``` to get output of all currently running containers, or inlcude an optional argument to search containers who's name match a phrase. Need to collect containers with multiple different phrases? Just comma sepperate them, like so ```docker-pretty-ps web,mail```
+```bash
 $ docker-pretty-ps web
-Currently running containers with: web
-
-bad-actor-services_bad-actor-services-web_1
-    Status:                Up 3 days
-    Created:               3 days ago
-    Ports:                 0.0.0.0:5000->5000/tcp
-                           0.0.0.0:5001->80/tcp
-    Container ID:          47549f78a0eb
-    Image ID:              bad-actor-services_bad-actor-services-web
-    Command:               tail -f /dev/null"
-
+Currently running containers with: web, mail
 tradetrack_web_1
     Status:                 Up 5 days
     Created:                5 days ago
@@ -36,13 +30,25 @@ tradetrack_dev_web_1
     Image ID:               tradetrack_dev_web
     Command:                "gunicorn -b 0.0.0.0…"
 
-Total Containers:   12
-Containers in Search:   3
+Total containers:      14
+Total running:         5
+Containers in search:  2
 ```
 
-## Example: Slim output --slim, (-s) mode
-Typical docker-prettty-ps too long for ya? Don't fret! ```docker-pretty-ps``` has an answer to that. Use ```-s``` or ```--slim``` cli argument to get a slim output.
+# Install
+```bash
+git clone https://github.com/politeauthority/docker-pretty-ps.git
+cd docker-pretty-ps
+python3 setup.py build
+python3 setup install
 ```
+Then you should be able to run the command ```docker-pretty-ps``` any where on your system.
+To annoying to do all that? Don't worry we'll be available through pip very shortly!
+
+# Other Example Usage
+### Example Slim Output --slim, (-s) Mode
+Typical docker-prettty-ps too long for ya? Don't fret! ```docker-pretty-ps``` has an answer to that. Use ```-s``` or ```--slim``` cli argument to get a slim output.
+```bash
 $ docker-pretty-ps -s
 All currently running docker containers
 
@@ -56,7 +62,7 @@ Total containers:   21
 Total running:      5
 ```
 
-## Example --slim (-s) mode with just a pinch more data: --inlcude (-i)
+### Example --slim (-s) Mode with Just a Pinch More Data --inlcude (-i)
 Sure, thats nice to know all containers on a host, but you also need to know what ports and the creation date, (for example).
 Well then just the ```--include``` or ```-i``` cli arg.
 
@@ -81,7 +87,23 @@ nginx-proxy
 Total containers:   5
 Total running:      3
 ```
-### Other available arguments to --inlcude (-i):
+### The other --inlcude (-i) Argument Options
+The `-i` argument allows a user to specify the columns they want to recieve back.
+```
+$ docker-pretty-ps -i ns
+```
+This will return just the container ID and the container status, like the following.
+```
+All currently running docker containers
+
+bad-actor-services_bad-actor-services-web_1
+    Container ID:         85cc746f77a4
+    Status:               Up 3 hours
+
+Total containers:   14
+Total running:      1
+```
+#### --include column namespaces
 - **n** - Co(**n**)tainer ID
 - **i** - Container (**i**)mage ID
 - **m** - Container co(**m**)mand
@@ -89,7 +111,7 @@ Total running:      3
 - **s** - Container (**s**)tatus
 - **p** - Container (**p**)orts
 
-## Example: All containers on system, on or off --all (-a)
+### Example all containers on system, on or off --all (-a)
 Run ```docker-pretty-ps -all``` against all containers running or not on your system.
 ```
 $ docker-pretty-ps -a
@@ -105,37 +127,38 @@ tradetrack_api_1
     Ports:
 
 bad-actor-services_bad-actor-services-web_1
-    Status:             Up 3 days
-    Created:            3 days ago
-    Ports:              0.0.0.0:5000->5000/tcp
-                        0.0.0.0:5001->80/tcp
-    Container ID:           47549f78a0eb
-    Image ID:           bad-actor-services_bad-actor-services-web
-    Command:            tail -f /dev/null"
+    Status:               Up 3 days
+    Created:              3 days ago
+    Ports:                0.0.0.0:5000->5000/tcp
+                          0.0.0.0:5001->80/tcp
+    Container ID:         47549f78a0eb
+    Image ID:             bad-actor-services_bad-actor-services-web
+    Command:              tail -f /dev/null"
 
 tradetrack_web_1
-    Status:                 Up 5 days
-    Created:                    5 days ago
-    Ports:                  80/tcp
-                        0.0.0.0:5010->5010/tcp
-    Container ID:           416948f10a42
-    Image ID:           tradetrack_web
-    Command:            "gunicorn -b 0.0.0.0…"
+    Status:               Up 5 days
+    Created:              5 days ago
+    Ports:                80/tcp
+                          0.0.0.0:5010->5010/tcp
+    Container ID:         416948f10a42
+    Image ID:             tradetrack_web
+    Command:              "gunicorn -b 0.0.0.0…"
 
 tradetrack_dev_web_1
-    Status:                 Up 6 days
-    Created:                6 days ago
+    Status:               Up 6 days
+    Created:              6 days ago
     Ports:
-    Container ID:           5f7ab3814051
-    Image ID:               tradetrack_dev_web
-    Command:                "gunicorn -b 0.0.0.0…"
+    Container ID:         5f7ab3814051
+    Image ID:             tradetrack_dev_web
+    Command:              "gunicorn -b 0.0.0.0…"
 
 Total containers:   4
 Total running:      3
 ```
 ## Full CLI Usage
 ```
-usage: docker-pretty-ps [-h] [-a] [-s] [-i INCLUDE] [-o [ORDER]] [-r] [-v]
+usage: docker-pretty-ps [-h] [-a] [-s] [-i INCLUDE] [-o [ORDER]] [-r] [-j]
+                        [-v]
                         [search]
 
 positional arguments:
@@ -152,20 +175,11 @@ optional arguments:
                         Order by, defaults to container start, allows
                         'container', 'image'.
   -r, --reverse         Reverses the display order.
+  -j, --json            Instead of printing, creates a json response of the
+                        container data.
   -v, --version         Reverses the display order.
 ```
 
-# Install
-**Step 1:** *git* the repo
-```
-git clone https://github.com/politeauthority/docker-pretty-ps.git
-cd docker-pretty-ps
-python3 setup.py build
-python3 setup install
-```
-Too annoying to do all that? Don't worry we'll be available through pip very shortly!
-
 # Future
-* Add unit tests!
-* Add optional json output to file.
 * Create more python native usage.
+* More Testing
