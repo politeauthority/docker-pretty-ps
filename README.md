@@ -10,7 +10,7 @@ Narrow your request with a search against containers with a name matching a sear
 - You're a Docker wizard and need just a little bit more.
 
 ## Basic Example
-Run ```docker-pretty-ps``` to get output of all currently running containers, or inlcude an optional argument to search containers who's name match a phrase. Need to collect containers with multiple different phrases? Just comma sepperate them, like so ```docker-pretty-ps web,mail```
+Run ```docker-pretty-ps``` to get output of all currently running containers, or include an optional argument to search containers who's name match a phrase. Need to collect containers with multiple different phrases? Just comma separate them, like so ```docker-pretty-ps web,mail```
 ```bash
 $ docker-pretty-ps web
 Currently running containers with: web, mail
@@ -101,7 +101,7 @@ Total containers:   5
 Total running:      3
 ```
 ### The other --inlcude (-i) argument options
-The `-i` argument allows a user to specify the columns they want to recieve back.
+The `-i` argument allows a user to specify the columns they want to receive back.
 ```
 $ docker-pretty-ps -i ns
 ```
