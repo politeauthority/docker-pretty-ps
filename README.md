@@ -1,7 +1,8 @@
-# docker-pretty-ps (v.0.0.1a76)
+# docker-pretty-ps (v.1.0.0)
 Tired of that awful super wide ```docker ps``` output? I'm always shrinking my terminal output just to see what ```docker ps``` is trying saying... and it's making me go blind. If you commiserate, try `docker-pretty-ps`! Just run ```docker-pretty-ps``` and get your output long, instead of wide and with **COLORS!**
 
-Use ```docker-pretty-ps``` to get all running containers, stopped containers, search for containers. You can do all this in a beautiful, colored, long output with only the data you requested. Narrow your request with a search against containers with a name matching a search phrase; such as ```docker-pretty-ps webserver```.
+Use ```docker-pretty-ps``` to get all running containers, stopped containers, search for containers. You can do all this in a beautiful, colored, long output with only the data you requested.
+Narrow your request with a search against containers with a name matching a search phrase; such as ```docker-pretty-ps webserver```.
 
 ### Why docker-pretty-ps though? (or TLDR)
 - `docker ps` output is awful. Very wide output, yet not very helpful.
@@ -9,7 +10,7 @@ Use ```docker-pretty-ps``` to get all running containers, stopped containers, se
 - You're a Docker wizard and need just a little bit more.
 
 ## Basic Example
-run ```docker-pretty-ps``` to get output of all currently running containers, or inlcude an optional argument to search containers who's name match a phrase. Need to collect containers with multiple different phrases? Just comma sepperate them, like so ```docker-pretty-ps web,mail```
+Run ```docker-pretty-ps``` to get output of all currently running containers, or inlcude an optional argument to search containers who's name match a phrase. Need to collect containers with multiple different phrases? Just comma sepperate them, like so ```docker-pretty-ps web,mail```
 ```bash
 $ docker-pretty-ps web
 Currently running containers with: web, mail
@@ -22,13 +23,20 @@ tradetrack_web_1
     Image ID:               tradetrack_web
     Command:                "gunicorn -b 0.0.0.0…"
 
-tradetrack_dev_web_1
-    Status:                 Up 6 days
-    Created:                6 days ago
-    Ports:
-    Container ID:           5f7ab3814051
-    Image ID:               tradetrack_dev_web
-    Command:                "gunicorn -b 0.0.0.0…"
+smpt-mail
+    Container ID:         10d861029eae
+    Image ID:             tvial/docker-mailserver:latest
+    Command:              supervisord -c /etc…
+    Created:              12 days ago
+    Status:               Up 12 days
+    Ports:                0.0.0.0:25->25/tcp
+                          110/tcp
+                          0.0.0.0:143->143/tcp
+                          0.0.0.0:587->587/tcp
+                          465/tcp
+                          995/tcp
+                          0.0.0.0:993->993/tcp
+                          4190/tcp
 
 Total containers:      14
 Total running:         5
@@ -49,9 +57,8 @@ python3 setup install
 
 ```
 Then you should be able to run the command ```docker-pretty-ps``` any where on your system.
-To annoying to do all that? Don't worry we'll be available through pip very shortly!
 
-# Other Example Usage
+# Other Example Usages
 ### Example Slim Output --slim, (-s) Mode
 Typical docker-prettty-ps too long for ya? Don't fret! ```docker-pretty-ps``` has an answer to that. Use ```-s``` or ```--slim``` cli argument to get a slim output.
 ```bash
@@ -93,7 +100,7 @@ nginx-proxy
 Total containers:   5
 Total running:      3
 ```
-### The other --inlcude (-i) Argument Options
+### The other --inlcude (-i) argument options
 The `-i` argument allows a user to specify the columns they want to recieve back.
 ```
 $ docker-pretty-ps -i ns
