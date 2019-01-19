@@ -36,7 +36,7 @@ import subprocess
 
 from dockerprettyps import errors
 
-__version__ = "0.0.1a74"
+__version__ = "0.0.1a75"
 __title__ = """
      _         _                                _   _
   __| |___  __| |_____ _ _   ___   _ __ _ _ ___| |_| |_ _  _   ___   _ __ ___
@@ -166,7 +166,9 @@ def version():
 
     """
     print(__title__)
-    print("\t%sdocker-pretty-ps%s                                Version: %s\n\n" % (BOLD, ENDC, __version__))
+    print("\t%sdocker-pretty-ps%s                                Version: %s" % (BOLD, ENDC, __version__))
+    print("                                                        @politeauthority\n\n")
+    print("                                                        https://github.com/politeauthority/docker-pretty-ps\n\n")
     exit()
 
 
@@ -234,6 +236,8 @@ def clean_output(output):
 
 def _clean_ports(port_str):
     """
+    Cleans port data from docker ps.
+
     :param port_str: The string of ports from the docker ps output.
     :type port_str: str
     :returns: The ports broken into a list.
@@ -317,7 +321,7 @@ def _clean_status(val):
 
 def get_container_colors(containers):
     """
-    Sets the ANSII color cmd to use for each container based on it's position in the list.
+    Sets an ANSII color cmd to use for each container based on it's position in the list.
 
     :param containers: The containers found from docker ps.
     :type containers: list
@@ -336,8 +340,8 @@ def get_color(count):
     Gets a color from the list of colors.
     @todo: Some more colors that are visable on light and dark screens would be nice.
 
-    :param count:
-    :type count:
+    :param count: The container number, 0 indexed.
+    :type count: int
     :returns: The ASNII color to use when printing to the terminal.
     :rtype: int
     """
