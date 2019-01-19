@@ -105,30 +105,30 @@ tradetrack_api_1
     Ports:
 
 bad-actor-services_bad-actor-services-web_1
-    Status:             Up 3 days
-    Created:            3 days ago
-    Ports:              0.0.0.0:5000->5000/tcp
-                        0.0.0.0:5001->80/tcp
-    Container ID:           47549f78a0eb
-    Image ID:           bad-actor-services_bad-actor-services-web
-    Command:            tail -f /dev/null"
+    Status:               Up 3 days
+    Created:              3 days ago
+    Ports:                0.0.0.0:5000->5000/tcp
+                          0.0.0.0:5001->80/tcp
+    Container ID:         47549f78a0eb
+    Image ID:             bad-actor-services_bad-actor-services-web
+    Command:              tail -f /dev/null"
 
 tradetrack_web_1
-    Status:                 Up 5 days
-    Created:                    5 days ago
-    Ports:                  80/tcp
-                        0.0.0.0:5010->5010/tcp
-    Container ID:           416948f10a42
-    Image ID:           tradetrack_web
-    Command:            "gunicorn -b 0.0.0.0…"
+    Status:               Up 5 days
+    Created:              5 days ago
+    Ports:                80/tcp
+                          0.0.0.0:5010->5010/tcp
+    Container ID:         416948f10a42
+    Image ID:             tradetrack_web
+    Command:              "gunicorn -b 0.0.0.0…"
 
 tradetrack_dev_web_1
-    Status:                 Up 6 days
-    Created:                6 days ago
+    Status:               Up 6 days
+    Created:              6 days ago
     Ports:
-    Container ID:           5f7ab3814051
-    Image ID:               tradetrack_dev_web
-    Command:                "gunicorn -b 0.0.0.0…"
+    Container ID:         5f7ab3814051
+    Image ID:             tradetrack_dev_web
+    Command:              "gunicorn -b 0.0.0.0…"
 
 Total containers:   4
 Total running:      3

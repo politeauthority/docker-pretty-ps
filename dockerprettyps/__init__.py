@@ -167,7 +167,7 @@ def version():
     """
     print(__title__)
     print("\t%sdocker-pretty-ps%s                                Version: %s" % (BOLD, ENDC, __version__))
-    print("                                                        @politeauthority\n\n")
+    print("                                                        @politeauthority")
     print("                                                        https://github.com/politeauthority/docker-pretty-ps\n\n")
     exit()
 
@@ -237,6 +237,7 @@ def clean_output(output):
 def _clean_ports(port_str):
     """
     Cleans port data from docker ps.
+    Unit tested: test__clean_ports
 
     :param port_str: The string of ports from the docker ps output.
     :type port_str: str
@@ -254,6 +255,7 @@ def _clean_ports(port_str):
 def _clean_status_date(val):
     """
     Gets the relative time the container was created based on the string from the docker ps command.
+    Unit tested: test__clean_status_date
 
     :param val: The string representation of when the container was started.
     :type val: str
@@ -306,6 +308,7 @@ def _clean_status_date(val):
 def _clean_status(val):
     """
     Checks the status column to see if a container is running or exited, and return the value.
+    Unit tested: test__clean_status
 
     :param val: The container status column value.
     :type val: str
@@ -322,6 +325,7 @@ def _clean_status(val):
 def get_container_colors(containers):
     """
     Sets an ANSII color cmd to use for each container based on it's position in the list.
+    Unit tested: test_get_container_colors
 
     :param containers: The containers found from docker ps.
     :type containers: list
@@ -338,6 +342,7 @@ def get_container_colors(containers):
 def get_color(count):
     """
     Gets a color from the list of colors.
+    Unit tested: test_get_color
     @todo: Some more colors that are visable on light and dark screens would be nice.
 
     :param count: The container number, 0 indexed.
@@ -362,6 +367,7 @@ def get_color(count):
 def _get_num_running_containers(containers):
     """
     Gets the total number of currently running docker containers.
+    Unit tested: test__get_num_running_containers
 
     :param containers: The containers found from docker ps.
     :type containers: list
@@ -378,6 +384,7 @@ def _get_num_running_containers(containers):
 def filter_containers(containers, args):
     """
     Filters containers by the search phrase matching the container name in some way.
+    Unit tested: test_filter_containers
 
     :param containers: The containers found from docker ps.
     :type containers: list
@@ -415,6 +422,7 @@ def filter_containers(containers, args):
 def order_containers(containers, args):
     """
     Orders containers based on the field requested.
+    Unit tested: test_order_containers
 
     :param containers: The containers found from docker ps.
     :type containers: list
@@ -446,6 +454,7 @@ def order_containers(containers, args):
 def print_format(containers, total_containers, total_running_containers, args):
     """
     Actually prints the stuff to the console.
+    Unit tested: test_print_format
 
     :param containers: The containers found from docker ps.
     :type containers: list
@@ -497,7 +506,7 @@ def pretty_print_fmt_containers(containers, args):
     print_content = {}
     for container in containers:
         container_content = {
-            "display_name": container_display_name(args, container),
+            "display_name": container_display_name(container, args),
             "data": []
         }
 
@@ -528,12 +537,12 @@ def pretty_print_fmt_containers(containers, args):
             container_content["data"] += created_data
 
         # Prep the container (s)tatus
-        status_data = _handle_column_status(args, container, selected_includes)
+        status_data = _handle_column_status(container, selected_includes, args)
         if status_data:
             container_content["data"] += status_data
 
         # Prep the container state (r)
-        state_data = _handle_column_state(args, container, selected_includes)
+        state_data = _handle_column_state(container, selected_includes, args)
         if state_data:
             container_content["data"] += state_data
 
@@ -549,14 +558,15 @@ def pretty_print_fmt_containers(containers, args):
     return True
 
 
-def container_display_name(args, container):
+def container_display_name(container, args):
     """
     Creates the container display name with formatting and colors.
+    Unit tested: test_container_display_name
 
-    :param args: The CLI args
-    :type args: <class 'argparse.Namespace'>
     :param container: The container to have information formatted for print.
     :type container: dict
+    :param args: The CLI args
+    :type args: <class 'argparse.Namespace'>
     :returns: The container's display name with color and formatting.
     :rtype: str
     """
@@ -573,16 +583,17 @@ def container_display_name(args, container):
         return highlighted_name + ENDC
 
 
-def _handle_column_state(args, container, selected_includes):
+def _handle_column_state(container, selected_includes, args):
     """
     Handles the selecting of the state (r) data for a container.
+    Unit tested: test__handle_column_state
 
-    :param args: The CLI args
-    :type args: <class 'argparse.Namespace'>
     :param container: The container to have information formatted for print.
     :type container: dict
     :param selected_includes: Includes to be selected for return.
     :type selected_includes: list
+    :param args: The CLI args
+    :type args: <class 'argparse.Namespace'>
     :returns: The print values for created data.
     :rtype: list
     """
@@ -600,16 +611,17 @@ def _handle_column_state(args, container, selected_includes):
     return print_d
 
 
-def _handle_column_status(args, container, selected_includes):
+def _handle_column_status(container, selected_includes, args):
     """
     Handles the selecting of the status (s) data for a container.
+    Unit tested: test__handle_column_status
 
-    :param args: The CLI args
-    :type args: <class 'argparse.Namespace'>
     :param container: The container to have information formatted for print.
     :type container: dict
     :param selected_includes: Includes to be selected for return.
     :type selected_includes: list
+    :param args: The CLI args
+    :type args: <class 'argparse.Namespace'>
     :returns: The print values for created data.
     :rtype: list
     """
@@ -626,6 +638,7 @@ def _handle_column_status(args, container, selected_includes):
 def _handle_column_ports(args, container, selected_includes):
     """
     Handles the selecting of the port (p) data for a container for printing.
+    Unit tested: test__handle_column_ports
 
     :param args: The CLI args
     :type args: <class 'argparse.Namespace'>
@@ -668,6 +681,7 @@ def _handle_column_ports(args, container, selected_includes):
 def _handle_column_created(args, container, selected_includes):
     """
     Handles the selecting of the created (c) data for a container.
+    Unit tested: test__handle_column_created
 
     :param args: The CLI args
     :type args: <class 'argparse.Namespace'>
@@ -712,6 +726,7 @@ def give_json(containers, args):
     """
     This thing is supposed to give pretty output, but maybe someone... somewhere just needs JSON. Well here we go!
     Here we will give JSON over standard out when the -j arg is supplied.
+    Unit tested: test_give_json
 
     :param containers: The containers found from docker ps.
     :type containers: list
@@ -719,17 +734,23 @@ def give_json(containers, args):
     :type args: <class 'argparse.Namespace'>
     """
     clean_date_containers = _json_container_dates(containers)
+    more_cleaned = []
+    for container in clean_date_containers:
+        more_cleaned.append(container.pop('color'))
+
     ret_dict = {
         "total_containers": len(containers),
-        "objects": clean_date_containers
+        "containers": clean_date_containers
     }
     print(json.dumps(ret_dict, indent=4, sort_keys=True))
-    # print(json.dumps(ret_dict))
+
+    return True
 
 
 def _json_container_dates(containers):
     """
     Moves container "status date" to a JSON friendly value.
+    Unit tested: test__json_container_dates
 
     :param containers: The containers found from docker ps.
     :type containers: list

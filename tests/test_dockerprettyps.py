@@ -106,6 +106,110 @@ class TestDockerPrettyPs(object):
         # assert position_first_date < position_last_date
 
     def test_print_format(self):
+        """
+
+        """
         assert dockerprettyps.print_format(test_ps_data.ps_containers, 6, 5, CliArgs())
+
+    def test_container_display_name(self):
+        """
+
+        """
+        containers = test_ps_data.ps_containers
+        container = containers[0]
+        container_display = dockerprettyps.container_display_name(container, CliArgs())
+        assert container_display == container["color"] + container["name"] + dockerprettyps.ENDC
+
+        # Test that we bold the portion of a container name that matches a search if we have one.
+        args = CliArgs()
+        args.search = ["post"]
+        for container in containers:
+            if container["name"] == "some-postgres":
+                assert dockerprettyps.container_display_name(container, args) == \
+                    "\x1b[91msome-\x1b[1m\x1b[91mpost\x1b[0m\x1b[91mgres\x1b[0m"
+
+    def test__handle_column_state(self):
+        """
+
+        """
+        containers = test_ps_data.ps_containers
+        for container in containers:
+            if container["name"] == "some-postgres":
+                test_container_on = container
+            if container["name"] == "alpine-sshd2":
+                test_container_off = container
+
+        args = CliArgs()
+        args.all = True
+        selected_args = ["r", "s", "c", "p", "n", "i", "m"]
+        assert dockerprettyps._handle_column_state(test_container_on, selected_args, args) == \
+            [['\x1b[1m\tState:\x1b[0m', '\x1b[92m[ON]\x1b[0m']]
+
+        assert dockerprettyps._handle_column_state(test_container_off, selected_args, args) == \
+            [['\x1b[1m\tState:\x1b[0m', '\x1b[91m[OFF]\x1b[0m']]
+
+    def test__handle_column_status(self):
+        """
+
+        """
+        containers = test_ps_data.ps_containers
+        for container in containers:
+            if container["name"] == "some-postgres":
+                test_container = container
+
+        args = CliArgs()
+        args.all = True
+        selected_args = ["s"]
+        # import pdb; pdb.set_trace()
+        assert dockerprettyps._handle_column_status(test_container, selected_args, args) == \
+            [['\x1b[1m\tStatus:\x1b[0m', 'Up 3 weeks']]
+
+    def test__handle_column_ports(self):
+        """
+
+        """
+        containers = test_ps_data.ps_containers
+        for container in containers:
+            if container["name"] == "some-postgres":
+                test_container = container
+
+        args = CliArgs()
+        args.all = True
+        selected_args = ["p"]
+
+        assert dockerprettyps._handle_column_ports(args, test_container, selected_args) == \
+            [['\x1b[1m\tPorts:\x1b[0m', '10.138.44.203:5432->5432/tcp']]
+
+    def test__handle_column_created(self):
+        """
+
+        """
+        containers = test_ps_data.ps_containers
+        for container in containers:
+            if container["name"] == "some-postgres":
+                test_container = container
+
+        args = CliArgs()
+        args.all = True
+        selected_args = ["c"]
+
+        assert dockerprettyps._handle_column_created(args, test_container, selected_args) == \
+            [['\x1b[1m\tCreated:\x1b[0m', '5 months ago']]
+
+    def test_give_json(self):
+        """
+
+        """
+        containers = test_ps_data.ps_containers
+        assert dockerprettyps.give_json(containers, CliArgs())
+
+    def test__json_container_dates(self):
+        """
+
+        """
+        containers = test_ps_data.ps_containers
+        json_dated_containers = dockerprettyps._json_container_dates(containers)
+        for container in json_dated_containers:
+            assert isinstance(container["status_date"], str)
 
 # End File docker-pretty-ps/tests/test_dockerprettyps.py
