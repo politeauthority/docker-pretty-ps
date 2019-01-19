@@ -34,13 +34,19 @@ Total containers:      14
 Total running:         5
 Containers in search:  2
 ```
-
 # Install
+### Over pip
+```bash
+pip install docker-pretty-ps
+```
+
+### Build and install
 ```bash
 git clone https://github.com/politeauthority/docker-pretty-ps.git
 cd docker-pretty-ps
 python3 setup.py build
 python3 setup install
+
 ```
 Then you should be able to run the command ```docker-pretty-ps``` any where on your system.
 To annoying to do all that? Don't worry we'll be available through pip very shortly!
