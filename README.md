@@ -171,9 +171,6 @@ optional arguments:
   -i INCLUDE, --include INCLUDE
                         Data points to add to display, (c)reated, (p)orts,
                         (i)mage_id, co(m)mand
-  -o [ORDER], --order [ORDER]
-                        Order by, defaults to container start, allows
-                        'container', 'image'.
   -r, --reverse         Reverses the display order.
   -j, --json            Instead of printing, creates a json response of the
                         container data.
@@ -181,5 +178,6 @@ optional arguments:
 ```
 
 # Future
+* Crush dem bugs.
 * Create more python native usage.
-* More Testing
+* More testing.

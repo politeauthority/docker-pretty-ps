@@ -115,12 +115,12 @@ def _parsed_args():
         "--include",
         default=[],
         help="Data points to add to display, (c)reated, (p)orts, (i)mage_id, co(m)mand")
-    parser.add_argument(
-        "-o",
-        "--order",
-        nargs='?',
-        default='',
-        help="Order by, defaults to container start, allows 'container', 'image'.")
+    # parser.add_argument(
+    #     "-o",
+    #     "--order",
+    #     nargs='?',
+    #     default='',
+    #     help="Order by, defaults to container start, allows 'container', 'image'.")
     parser.add_argument(
         "-r",
         "--reverse",
@@ -439,11 +439,12 @@ def order_containers(containers, args):
         return containers
 
     field = 'status_date'
-    if args.order:
-        if args.order in ['container', 'container-name', 'container-id']:
-            field = 'container_id'
-        if args.order in ['image', 'image-id', 'image-name']:
-            field = 'image_id'
+    # @todo: This is not working how i would like it to, so removing it from release.
+    # if args.order:
+    #     if args.order in ['container', 'container-name', 'container-id']:
+    #         field = 'container_id'
+    #     if args.order in ['image', 'image-id', 'image-name']:
+    #         field = 'image_id'
 
     ordered_containers = sorted(containers, key=itemgetter(field))
 
