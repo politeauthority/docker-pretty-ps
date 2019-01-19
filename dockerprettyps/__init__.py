@@ -36,7 +36,7 @@ import subprocess
 
 from dockerprettyps import errors
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __title__ = """
      _         _                                _   _
   __| |___  __| |_____ _ _   ___   _ __ _ _ ___| |_| |_ _  _   ___   _ __ ___
@@ -279,6 +279,9 @@ def _clean_status_date(val):
 
     elif '(health' in cleaned:
         cleaned = cleaned[:cleaned.find(')' + 1)].strip()
+
+    elif '(unhealthy' in cleaned:
+        cleaned = cleaned[:cleaned.find('(')].strip()
 
     elif 'exited (' in cleaned:
         cleaned = cleaned[cleaned.find(')') + 1:].strip()

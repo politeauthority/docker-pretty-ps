@@ -2,6 +2,7 @@
 
 """
 from datetime import datetime
+import os
 
 import dockerprettyps
 
@@ -18,6 +19,14 @@ class TestDockerPrettyPs(object):
         """
         assert dockerprettyps.__version__
         assert dockerprettyps.version()
+
+    def test_clean_output(self):
+        """
+        """
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        data = open(os.path.join(dir_path, "data", "docker_ps_data_health.txt"), "r").read()
+        containers = dockerprettyps.clean_output(data)
+        assert containers
 
     def test__clean_ports(self):
         """
