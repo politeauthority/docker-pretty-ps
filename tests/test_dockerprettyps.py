@@ -11,6 +11,14 @@ from .data.cli_args import CliArgs
 
 class TestDockerPrettyPs(object):
 
+    def test_version(self):
+        """
+        Tests dockerprettyps.version() method, basically making sure it doesnt crash.
+
+        """
+        assert dockerprettyps.__version__
+        assert dockerprettyps.version()
+
     def test__clean_ports(self):
         """
 
@@ -22,6 +30,9 @@ class TestDockerPrettyPs(object):
 
     def test__clean_status_date(self):
         """
+        Tests the dockerprettyps._clean_status_date() method to make sure it takes docker ps date differences and makes
+        a real datetime.
+        Example input: Up 20 hours
 
         """
         date_str = 'Up 12 minutes'
@@ -33,6 +44,8 @@ class TestDockerPrettyPs(object):
 
     def test__clean_status(self):
         """
+        Tests the dockerprettyps._clean_status() method to see if a the output from a container signifies if the
+        container is running currently.
 
         """
         assert not dockerprettyps._clean_status("Exited (1) 22 minutes ago")
@@ -40,6 +53,8 @@ class TestDockerPrettyPs(object):
 
     def test_get_container_colors(self):
         """
+        Tests the dockerprettyps.get_container_colors() method which runs all containers throuh the get_color method(),
+        to try and assign a semi unique color to an instance based on it's container name.
 
         """
         colorless_containers = []
@@ -54,6 +69,7 @@ class TestDockerPrettyPs(object):
 
     def test_get_color(self):
         """
+        Tests the dockerprettyps.get_color() method to make sure any int passed will return an ANSII color code.
 
         """
         assert dockerprettyps.get_color(1) == "\033[94m"
@@ -61,12 +77,15 @@ class TestDockerPrettyPs(object):
 
     def test__get_num_running_containers(self):
         """
+        Tests the dockerprettyps._get_num_running_containers() method to make sure it can actually count.
 
         """
         assert dockerprettyps._get_num_running_containers(test_ps_data.ps_containers) == 5
 
     def test_filter_containers(self):
         """
+        Tests the dockerprettyps.filter_containers() method to make sure it removes containers based on 'search' as well
+        as running or not running containers.
 
         """
         assert len(test_ps_data.ps_containers) == 6
@@ -91,6 +110,8 @@ class TestDockerPrettyPs(object):
 
     def test_order_containers(self):
         """
+        Tests the dockerprettyps.order_containers() method to make sure we order containers as you would expect.
+        @todo: This method and test need work!
 
         """
         ordered = dockerprettyps.order_containers(test_ps_data.ps_containers, CliArgs())
@@ -107,12 +128,16 @@ class TestDockerPrettyPs(object):
 
     def test_print_format(self):
         """
+        Tests the dockerprettyps.print_format() method, primarily checking that the method doesnt fail, since it mostly
+        just prints to the console.
 
         """
         assert dockerprettyps.print_format(test_ps_data.ps_containers, 6, 5, CliArgs())
 
     def test_container_display_name(self):
         """
+        Tests the dockerprettyps.container_display_name() method to see if we create the right console formatting for a
+        container, with potential bolding to highlight search items.
 
         """
         containers = test_ps_data.ps_containers
@@ -130,6 +155,8 @@ class TestDockerPrettyPs(object):
 
     def test__handle_column_state(self):
         """
+        Tests the dockerprettyps._handle_column_state() method, to make sure we convert the shell output to a state that
+        we can control and use.
 
         """
         containers = test_ps_data.ps_containers
@@ -150,6 +177,8 @@ class TestDockerPrettyPs(object):
 
     def test__handle_column_status(self):
         """
+        Tests the dockerprettyps._handle_column_status() method, to make sure we convert the shell output to a status
+        that we can control and use.
 
         """
         containers = test_ps_data.ps_containers
@@ -166,6 +195,8 @@ class TestDockerPrettyPs(object):
 
     def test__handle_column_ports(self):
         """
+        Tests the dockerprettyps._handle_column_ports() method, to make sure we convert the shell output to ports that
+        we can control and use.
 
         """
         containers = test_ps_data.ps_containers
@@ -182,6 +213,8 @@ class TestDockerPrettyPs(object):
 
     def test__handle_column_created(self):
         """
+        Tests the dockerprettyps._handle_column_created() method, to make sure we convert the shell output to a format
+        that we can control and use.
 
         """
         containers = test_ps_data.ps_containers
@@ -196,15 +229,22 @@ class TestDockerPrettyPs(object):
         assert dockerprettyps._handle_column_created(args, test_container, selected_args) == \
             [['\x1b[1m\tCreated:\x1b[0m', '5 months ago']]
 
+    # def test_print_data(self):
+    #     dockerprettyps.print_data
+
     def test_give_json(self):
         """
+        Tests the dockerprettyps.give_json() method, making sure we output the same data we would normally, but in JSON.
 
         """
         containers = test_ps_data.ps_containers
-        assert dockerprettyps.give_json(containers, CliArgs())
+        the_json = dockerprettyps.give_json(containers, CliArgs())
+        assert the_json
 
     def test__json_container_dates(self):
         """
+        Tests the dockerprettyps._json_container_dates() method, to ensure that we convert python datetimes to json
+        friendly time stamps.
 
         """
         containers = test_ps_data.ps_containers

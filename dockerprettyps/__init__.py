@@ -36,7 +36,7 @@ import subprocess
 
 from dockerprettyps import errors
 
-__version__ = "0.0.1a75"
+__version__ = "0.0.1a76"
 __title__ = """
      _         _                                _   _
   __| |___  __| |_____ _ _   ___   _ __ _ _ ___| |_| |_ _  _   ___   _ __ ___
@@ -60,6 +60,7 @@ def run_cli():
 
     if args.version:
         version()
+        exit()
 
     try:
         raw_containers = get_raw_containers()
@@ -163,13 +164,16 @@ def _parsed_args():
 def version():
     """
     Displays docker-pretty-ps version to the cli.
+    Unit tested: test_version
 
     """
+    spacing = "                                                        "
     print(__title__)
     print("\t%sdocker-pretty-ps%s                                Version: %s" % (BOLD, ENDC, __version__))
-    print("                                                        @politeauthority")
-    print("                                                        https://github.com/politeauthority/docker-pretty-ps\n\n")
-    exit()
+    print("%s@politeauthority" % spacing)
+    print("%shttps://github.com/politeauthority/docker-pretty-ps\n\n" %  spacing)
+
+    return True
 
 
 def get_raw_containers():

@@ -4,7 +4,7 @@ Tired of that awful super wide ```docker ps``` output? I'm always shrinking my t
 Use ```docker-pretty-ps``` to get all running containers, stopped containers, search for containers. You can do all this in a beautiful, colored, long output with only the data you requested. Narrow your request with a search against containers with a name matching a search phrase; such as ```docker-pretty-ps webserver```.
 
 ## Most Basic Example
-run ```docker-pretty-ps``` to get output of all currently running containers, or inlcude an optional argument to search containers who's name match a phrase. Need to collect containers with multiple different phrases? Just comma sepperate them (```docker-pretty-ps web,mail```)
+run ```docker-pretty-ps``` to get output of all currently running containers, or inlcude an optional argument to search containers who's name match a phrase. Need to collect containers with multiple different phrases? Just comma sepperate them, like so ```docker-pretty-ps web,mail```
 ```
 $ docker-pretty-ps web
 Currently running containers with: web, mail
@@ -84,7 +84,7 @@ Total running:      3
 ### The other --inlcude (-i) Argument Options
 The `-i` argument allows a user to specify the columns they want to recieve back.
 ```
-docker-pretty-ps -i ns
+$ docker-pretty-ps -i ns
 ```
 This will return just the container ID and the container status, like the following.
 ```
