@@ -1,5 +1,5 @@
 """Errors
-docker-pretty-ps rrrors that might be thrown when problems happen.
+docker-pretty-ps errors that might be thrown when problems happen.
 
 """
 
@@ -10,5 +10,5 @@ class Error(Exception):
 
 
 class BadResponseDockerEngine(Error):
-    """Raised when the Docker Engine does not supply a propper response"""
+    """Raised when the Docker Engine does not supply a proper response"""
     pass

@@ -103,7 +103,7 @@ def _parsed_args():
         "--all",
         default=False,
         action='store_true',
-        help="Selects against all rnning and stopped containers")
+        help="Selects against all running and stopped containers")
     parser.add_argument(
         "-s",
         "--slim",
@@ -263,7 +263,7 @@ def _clean_status_date(val):
 
     :param val: The string representation of when the container was started.
     :type val: str
-    :returns: Rough datetime for when the continer was started.
+    :returns: Rough datetime for when the container was started.
     :rtype: <Datetime obj>
     """
     now = datetime.now()
@@ -350,7 +350,7 @@ def get_color(count):
     """
     Gets a color from the list of colors.
     Unit tested: test_get_color
-    @todo: Some more colors that are visable on light and dark screens would be nice.
+    @todo: Some more colors that are visible on light and dark screens would be nice.
 
     :param count: The container number, 0 indexed.
     :type count: int
@@ -762,7 +762,7 @@ def _json_container_dates(containers):
 
     :param containers: The containers found from docker ps.
     :type containers: list
-    :returns: The containers found from docker ps, with JSON friedly dates.
+    :returns: The containers found from docker ps, with JSON friendly dates.
     :rtype: list
     """
     clean_containers = []
