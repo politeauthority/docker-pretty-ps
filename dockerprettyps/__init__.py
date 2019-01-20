@@ -115,12 +115,12 @@ def _parsed_args():
         "--include",
         default=[],
         help="Data points to add to display, (c)reated, (p)orts, (i)mage_id, co(m)mand")
-    # parser.add_argument(
-    #     "-o",
-    #     "--order",
-    #     nargs='?',
-    #     default='',
-    #     help="Order by, defaults to container start, allows 'container', 'image'.")
+    parser.add_argument(
+        "-o",
+        "--order",
+        nargs='?',
+        default='',
+        help="Order by, defaults to container start, allows 'container', 'pretty_print_fmt_containers'.")
     parser.add_argument(
         "-r",
         "--reverse",
@@ -171,7 +171,7 @@ def version():
     print(__title__)
     print("\t%sdocker-pretty-ps%s                                Version: %s" % (BOLD, ENDC, __version__))
     print("%s@politeauthority" % spacing)
-    print("%shttps://github.com/politeauthority/docker-pretty-ps\n\n" %  spacing)
+    print("%shttps://github.com/politeauthority/docker-pretty-ps\n\n" % spacing)
 
     return True
 
@@ -199,6 +199,7 @@ def get_raw_containers():
 def clean_output(output):
     """
     Cleans the output from the docker ps command, storing it into a list of dicts.
+    Unit Test: test_clean_output
 
     :param output: The standard out from the docker ps command.
     :type output: str
@@ -217,11 +218,12 @@ def clean_output(output):
                 revised_line_split.append(piece)
         container = {
             "container_id": revised_line_split[0].strip(),
-            "image_id": revised_line_split[1].strip(),
+            "image": revised_line_split[1].strip(),
             "command": revised_line_split[2].strip().replace('"', ""),
             "created": revised_line_split[3].strip(),
+            "created_date": _parse_ps_date(revised_line_split[4].strip()),
             "status": revised_line_split[4].strip(),
-            "status_date": _clean_status_date(revised_line_split[4].strip()),
+            "status_date": _parse_ps_date(revised_line_split[4].strip()),
             "running": _clean_status(revised_line_split[4])
         }
 
@@ -230,7 +232,7 @@ def clean_output(output):
             container["ports"] = []
             container["name"] = revised_line_split[5].strip()
         else:
-            container["ports"] = _clean_ports(revised_line_split[5])
+            container["ports"] = _parse_ports(revised_line_split[5])
             container["name"] = revised_line_split[6].strip()
         containers.append(container)
 
@@ -238,10 +240,10 @@ def clean_output(output):
     return containers
 
 
-def _clean_ports(port_str):
+def _parse_ports(port_str):
     """
     Cleans port data from docker ps.
-    Unit tested: test__clean_ports
+    Unit tested: test__parse_ports
 
     :param port_str: The string of ports from the docker ps output.
     :type port_str: str
@@ -249,17 +251,19 @@ def _clean_ports(port_str):
     :rtype: list
     """
     port_str = port_str.strip()
-    if ", " not in port_str:
+    if port_str == "":
+        return []
+    elif ", " not in port_str:
         return [port_str]
 
     ports = port_str.split(', ')
     return ports
 
 
-def _clean_status_date(val):
+def _parse_ps_date(val):
     """
     Gets the relative time the container was created based on the string from the docker ps command.
-    Unit tested: test__clean_status_date
+    Unit test: test__parse_ps_date
 
     :param val: The string representation of when the container was started.
     :type val: str
@@ -441,21 +445,18 @@ def order_containers(containers, args):
     if not containers:
         return containers
 
-    field = 'status_date'
-    # @todo: This is not working how i would like it to, so removing it from release.
-    # if args.order:
-    #     if args.order in ['container', 'container-name', 'container-id']:
-    #         field = 'container_id'
-    #     if args.order in ['image', 'image-id', 'image-name']:
-    #         field = 'image_id'
+    field = "status_date"
+    if args.order:
+        if args.order in ["name", "container"]:
+            field = "name"
+        if args.order in ["created", "create"]:
+            field = "created_date"
 
     ordered_containers = sorted(containers, key=itemgetter(field))
 
     if args.reverse:
         ordered_containers.reverse()
 
-    if field in ['status_date'] and not args.reverse:
-        ordered_containers.reverse()
     return ordered_containers
 
 
@@ -529,8 +530,8 @@ def pretty_print_fmt_containers(containers, args):
         if "i" in selected_includes:
             container_content["data"].append(
                 [
-                    BOLD + "\tImage ID:" + ENDC,
-                    container["image_id"]])
+                    BOLD + "\tImage:" + ENDC,
+                    container["image"]])
 
         # Prep the container co(m)mand
         if "m" in selected_includes:
@@ -769,6 +770,7 @@ def _json_container_dates(containers):
     for container in containers:
         tmp_container = container
         tmp_container["status_date"] = str(tmp_container["status_date"])
+        tmp_container["created_date"] = str(tmp_container["created_date"])
         clean_containers.append(tmp_container)
 
     return clean_containers

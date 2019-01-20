@@ -1,19 +1,12 @@
 from datetime import datetime
 
-ps_data_1 = """CONTAINER ID        IMAGE                                      COMMAND                  CREATED             STATUS              PORTS                                      NAMES
-1a31fcaccf59        badactorservices_bad-actor-services        "/bin/sh -c 'gunicor…"   4 days ago          Up 4 days           80/tcp                                     badactorservices_bad-actor-services_1
-d55ab151ce26        badactorservices_bad-actor-services-data   "tail -f /dev/null"      4 days ago          Up 4 days                                                      badactorservices_bad-actor-services-data_1
-d4129f2a0d3b        jwilder/nginx-proxy                        "/app/docker-entrypo…"   4 days ago          Up 4 days           0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   nginx-proxy
-42df45bdc8b3        postgres:alpine                            "docker-entrypoint.s…"   5 months ago        Up 3 weeks          10.138.44.203:5432->5432/tcp               some-postgres
-23a8d9762781        danielguerra/alpine-sshd                   "docker-entrypoint.s…"   6 months ago        Up 4 months         0.0.0.0:4848->22/tcp                       alpine-sshd"""
-
-
 ps_containers = [
     {
         'container_id': '1a31fcaccf59',
-        'image_id': 'badactorservices_bad-actor-services',
+        'image': 'badactorservices_bad-actor-services',
         'command': "/bin/sh -c 'gunicor…",
         'created': '4 days ago',
+        'created_date': datetime(2019, 1, 15, 3, 6, 40, 586865),
         'status': 'Up 4 days',
         'status_date': datetime(2019, 1, 15, 3, 6, 40, 586865),
         'running': True,
@@ -23,9 +16,10 @@ ps_containers = [
     },
     {
         'container_id': 'd55ab151ce26',
-        'image_id': 'badactorservices_bad-actor-services-data',
+        'image': 'badactorservices_bad-actor-services-data',
         'command': 'tail -f /dev/null',
         'created': '4 days ago',
+        'created_date': datetime(2019, 1, 15, 3, 6, 40, 586865),
         'status': 'Up 4 days',
         'status_date': datetime(2019, 1, 15, 3, 6, 40, 586889),
         'running': True,
@@ -35,8 +29,9 @@ ps_containers = [
     },
     {
         'container_id': 'd4129f2a0d3b',
-        'image_id': 'jwilder/nginx-proxy',
+        'image': 'jwilder/nginx-proxy',
         'command': '/app/docker-entrypo…',
+        'created_date': datetime(2019, 1, 15, 3, 6, 40, 586865),
         'created': '4 days ago',
         'status': 'Up 4 days',
         'status_date': datetime(2019, 1, 15, 3, 6, 40, 586903),
@@ -47,9 +42,10 @@ ps_containers = [
     },
     {
         'container_id': '42df45bdc8b3',
-        'image_id': 'postgres:alpine',
+        'image': 'postgres:alpine',
         'command': 'docker-entrypoint.s…',
         'created': '5 months ago',
+        'created_date': datetime(2019, 1, 15, 3, 6, 40, 586865),
         'status': 'Up 3 weeks',
         'status_date': datetime(2019, 1, 19, 3, 6, 40, 586918),
         'running': True,
@@ -59,9 +55,10 @@ ps_containers = [
     },
     {
         'container_id': '23a8d9762781',
-        'image_id': 'danielguerra/alpine-sshd',
+        'image': 'danielguerra/alpine-sshd',
         'command': 'docker-entrypoint.s…',
         'created': '6 months ago',
+        'created_date': datetime(2019, 1, 15, 3, 6, 40, 586865),
         'status': 'Up 4 months',
         'status_date': datetime(2019, 1, 19, 3, 6, 40, 586931),
         'running': True,
@@ -71,9 +68,10 @@ ps_containers = [
     },
     {
         'container_id': '25a8d92781',
-        'image_id': 'danielguerra/alpine-sshd',
+        'image': 'danielguerra/alpine-sshd',
         'command': 'docker-entrypoint.s…',
         'created': '6 months ago',
+        'created_date': datetime(2018, 12, 19, 3, 6, 40, 586931),
         'status': 'Up 5 months',
         'status_date': datetime(2019, 1, 19, 3, 6, 40, 586931),
         'running': False,
