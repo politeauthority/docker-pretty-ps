@@ -1,4 +1,4 @@
-# docker-pretty-ps (v.1.0.0)
+# docker-pretty-ps (v.1.0.1)
 Tired of that awful super wide ```docker ps``` output? I'm always shrinking my terminal output just to see what ```docker ps``` is trying saying... and it's making me go blind. If you commiserate, try `docker-pretty-ps`! Just run ```docker-pretty-ps``` and get your output long, instead of wide and with **COLORS!**
 
 Use ```docker-pretty-ps``` to get all running containers, stopped containers, search for containers. You can do all this in a beautiful, colored, long output with only the data you requested.
@@ -130,43 +130,26 @@ Run ```docker-pretty-ps -all``` against all containers running or not on your sy
 $ docker-pretty-ps -a
 All docker containers
 
-tradetrack_api_1
-    Container ID:         d7755eeda676
-    Image ID:             tradetrack_api
-    Command:              gunicorn -b 0.0.0.0…
-    Created:              3 months ago
-    Status:               Exited (0) 8 weeks ago
-    State:                [OFF]
-    Ports:
+determined_goldstine
+  Container ID:         51ab96c96896
+  Image ID:             39e12b5ef620
+  Command:              /bin/sh -c 'apk add…
+  Created:              13 days ago
+  Status:               Exited (1) 13 days ago
+  State:                [OFF]
+  Ports:
 
-bad-actor-services_bad-actor-services-web_1
-    Status:               Up 3 days
-    Created:              3 days ago
-    Ports:                0.0.0.0:5000->5000/tcp
-                          0.0.0.0:5001->80/tcp
-    Container ID:         47549f78a0eb
-    Image ID:             bad-actor-services_bad-actor-services-web
-    Command:              tail -f /dev/null"
-
-tradetrack_web_1
-    Status:               Up 5 days
-    Created:              5 days ago
-    Ports:                80/tcp
-                          0.0.0.0:5010->5010/tcp
-    Container ID:         416948f10a42
-    Image ID:             tradetrack_web
-    Command:              "gunicorn -b 0.0.0.0…"
-
-tradetrack_dev_web_1
-    Status:               Up 6 days
-    Created:              6 days ago
-    Ports:
-    Container ID:         5f7ab3814051
-    Image ID:             tradetrack_dev_web
-    Command:              "gunicorn -b 0.0.0.0…"
+alpine-sshd
+  Container ID:         23a8d9762781
+  Image ID:             danielguerra/alpine-sshd
+  Command:              docker-entrypoint.s…
+  Created:              6 months ago
+  Status:               Up 4 months
+  State:                [ON]
+  Ports:                0.0.0.0:4848->22/tcp
 
 Total containers:   4
-Total running:      3
+Total running:      2
 ```
 ## Full CLI Usage
 ```
@@ -175,7 +158,7 @@ usage: docker-pretty-ps [-h] [-a] [-s] [-i INCLUDE] [-o [ORDER]] [-r] [-j]
                         [search]
 
 positional arguments:
-  search                Phrase to search containers, comma separate multiples.
+  search                Phrase to search containers, comma separate multiple.
 
 optional arguments:
   -h, --help            show this help message and exit

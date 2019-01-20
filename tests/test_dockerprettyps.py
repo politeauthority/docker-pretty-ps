@@ -1,24 +1,16 @@
 """Unit Tests for docker-pretty-ps
 
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 import dockerprettyps
 
-from .data import docker_ps as test_ps_data
+from .data import docker_ps_data as test_ps_data
 from .data.cli_args import CliArgs
 
 
 class TestDockerPrettyPs(object):
-
-    def load_test_data(self, phile):
-        """
-        """
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        the_data_phile = "ps_data_" + phile + ".txt"
-        data = open(os.path.join(dir_path, "data", the_data_phile), "r").read()
-        return data
 
     def test_version(self):
         """
@@ -35,34 +27,58 @@ class TestDockerPrettyPs(object):
 
         """
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        data = open(os.path.join(dir_path, "data", "docker_ps_data_health.txt"), "r").read()
+        data = open(os.path.join(dir_path, "data", "raw_docker_ps.txt"), "r").read()
 
         containers = dockerprettyps.clean_output(data)
         assert isinstance(containers, list)
+        assert len(containers) == 16
+        for container in containers:
+            assert container.get("container_id")
+            assert container.get("image")
+            assert container.get("command")
+            assert container.get("created")
+            assert container.get("created_date")
+            assert container.get("status")
+            assert container.get("status_date")
+            assert container.get("running")
 
-    def test__clean_ports(self):
+    def test__parse_ports(self):
         """
-        Tests the dockerprettyps._clean_ports() method ensure that we break apart ports properly as a trimmed list.
+        Tests the dockerprettyps._parse_ports() method ensure that we break apart ports properly as a trimmed list.
 
         """
         port_str = ' 0.0.0.0:5000->5000/tcp, 0.0.0.0:5001->80/tcp'
-        ports = dockerprettyps._clean_ports(port_str)
+        ports = dockerprettyps._parse_ports(port_str)
+        assert isinstance(ports, list)
         assert ports == ['0.0.0.0:5000->5000/tcp', '0.0.0.0:5001->80/tcp']
+
+        port_str = ' '
+        ports = dockerprettyps._parse_ports(port_str)
+        assert isinstance(ports, list)
+        assert ports == []
         # assert type(test_ps_data.ps_data_1) == str
 
-    def test__clean_status_date(self):
+    def test__parse_ps_date(self):
         """
-        Tests the dockerprettyps._clean_status_date() method to make sure it takes docker ps date differences and makes
+        Tests the dockerprettyps._clean_ps_date() method to make sure it takes docker ps date differences and makes
         a real datetime.
+        United
         Example input: Up 20 hours
 
         """
-        date_str = 'Up 12 minutes'
-        the_date = dockerprettyps._clean_status_date(date_str)
-        # import pdb; pdb.set_trace()
+        status_date_str = 'Up 12 minutes'
+        the_date_minutes = dockerprettyps._parse_ps_date(status_date_str)
 
-        # assert ports == ['0.0.0.0:5000->5000/tcp', '0.0.0.0:5001->80/tcp']
-        assert isinstance(the_date, datetime)
+        assert isinstance(the_date_minutes, datetime)
+        assert the_date_minutes < datetime.now()
+        assert the_date_minutes > datetime.now() - timedelta(minutes=13)
+
+        create_date_str = '5 days ago'
+        the_date_days = dockerprettyps._parse_ps_date(create_date_str)
+
+        assert isinstance(the_date_days, datetime)
+        assert the_date_days < datetime.now()
+        assert the_date_days > datetime.now() - timedelta(days=6)
 
     def test__clean_status(self):
         """
@@ -134,20 +150,88 @@ class TestDockerPrettyPs(object):
     def test_order_containers(self):
         """
         Tests the dockerprettyps.order_containers() method to make sure we order containers as you would expect.
-        @todo: This method and test need work!
+
+        """
+        self.order_containers_standard()
+        self.order_containers_reverse()
+        self.order_containers_by_name()
+        self.order_containers_by_create_date()
+
+    def order_containers_standard(self):
+        """
+        Tests that dockerprettyps.order_containers() will order containers by status_date by default.
+        The default will list containers by oldest status_date to newest.
 
         """
         ordered = dockerprettyps.order_containers(test_ps_data.ps_containers, CliArgs())
+        position_first_status_date = ordered[0]["status_date"]
+        position_last_status_date = ordered[len(ordered) - 1]["status_date"]
+
+        assert isinstance(ordered, list)
+        assert position_first_status_date < position_last_status_date
+
+    def order_containers_reverse(self):
+        """
+        Tests that dockerprettyps.order_containers() will order containers by status_date by default.
+        This will list containers by newest status_date to oldest.
+        """
+        args = CliArgs()
+        args.reverse = True
+        ordered = dockerprettyps.order_containers(test_ps_data.ps_containers, args)
         position_first_date = ordered[0]["status_date"]
         position_last_date = ordered[len(ordered) - 1]["status_date"]
         assert position_first_date > position_last_date
 
-        # args = CliArgs()
-        # args.reverse = True
-        # ordered = dockerprettyps.order_containers(test_ps_data.ps_containers, args)
-        # position_first_date = ordered[0]["status_date"]
-        # position_last_date = ordered[len(ordered) - 1]["status_date"]
-        # assert position_first_date < position_last_date
+    def order_containers_by_create_date(self):
+        """
+        Tests that dockerprettyps.order_containers() will order containers by created date.
+
+        """
+        args = CliArgs()
+        phrases = ["created", "created"]
+        for phrase in phrases:
+            args.order = phrase
+            args.reverse = False
+            ordered = dockerprettyps.order_containers(test_ps_data.ps_containers, args)
+            position_first_date = ordered[0]["created_date"]
+            position_last_date = ordered[len(ordered) - 1]["created_date"]
+            assert position_first_date < position_last_date
+
+            args.reverse = True
+            reverse_order = dockerprettyps.order_containers(test_ps_data.ps_containers, args)
+            position_first_date = reverse_order[0]["created_date"]
+            position_last_date = reverse_order[len(ordered) - 1]["created_date"]
+            assert position_first_date > position_last_date
+
+    def order_containers_by_name(self):
+        """
+        Tests that dockerprettyps.order_containers() will order containers by name.
+
+        """
+        args = CliArgs()
+        phrases = ["name", "container"]
+        for phrase in phrases:
+            args.order = phrase
+            ordered = dockerprettyps.order_containers(test_ps_data.ps_containers, args)
+            position_first_name = ordered[0]["name"]
+            position_last_name = ordered[len(ordered) - 1]["name"]
+            assert position_first_name == "alpine-sshd"
+            assert position_last_name == "some-postgres"
+
+    def order_containers_by_image(self):
+        """
+        Tests that dockerprettyps.order_containers() will order containers by name.
+
+        """
+        args = CliArgs()
+        phrases = ["name", "container"]
+        for phrase in phrases:
+            args.order = phrase
+            ordered = dockerprettyps.order_containers(test_ps_data.ps_containers, args)
+            position_first_name = ordered[0]["name"]
+            position_last_name = ordered[len(ordered) - 1]["name"]
+            assert position_first_name == "alpine-sshd"
+            assert position_last_name == "some-postgres"
 
     def test_print_format(self):
         """
@@ -212,7 +296,6 @@ class TestDockerPrettyPs(object):
         args = CliArgs()
         args.all = True
         selected_args = ["s"]
-        # import pdb; pdb.set_trace()
         assert dockerprettyps._handle_column_status(test_container, selected_args, args) == \
             [['\x1b[1m\tStatus:\x1b[0m', 'Up 3 weeks']]
 
