@@ -125,7 +125,7 @@ Total running:      1
 - **p** - Container (**p**)orts
 
 ### Example all containers on system, on or off --all (-a)
-Run ```docker-pretty-ps -all``` against all containers running or not on your system.
+Run ```docker-pretty-ps --all``` against all containers running or not on your system.
 ```
 $ docker-pretty-ps -a
 All docker containers
