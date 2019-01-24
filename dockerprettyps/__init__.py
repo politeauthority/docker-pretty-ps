@@ -138,7 +138,7 @@ def _parsed_args():
         "--version",
         default=False,
         action='store_true',
-        help="Reverses the display order.")
+        help="Print the binary version information.")
 
     args = parser.parse_args()
 
