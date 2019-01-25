@@ -36,7 +36,7 @@ import subprocess
 
 from dockerprettyps import errors
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __title__ = """
      _         _                                _   _
   __| |___  __| |_____ _ _   ___   _ __ _ _ ___| |_| |_ _  _   ___   _ __ ___
@@ -138,7 +138,7 @@ def _parsed_args():
         "--version",
         default=False,
         action='store_true',
-        help="Reverses the display order.")
+        help="Print the binary version information.")
 
     args = parser.parse_args()
 
