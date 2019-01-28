@@ -46,22 +46,31 @@ podTemplate(
 
     volumes: [
         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
-        secretVolume(secretName: 'kube-config', mountPath: '/home/jenkins/.kube')
     ]
 ) {
     node(label) {
         try {
             currentBuild.description = "Docker-Pretty-Ps Testing"
-
             // Stage One
             // Initialize terraform and create the Scattershot instance, which will also start Scattershot on boot
-            stage('Build and Run Scattershot') {
-                echo "Operating in workspace ${terraform_workspace}"
+            stage('Running unit tests') {
+                echo "Running unit tests"
                 checkout scm
                 container("docker-pretty-ps") {
                     ansiColor('gnome-terminal') {
                         sh """#!/usr/bin/env bash
                             pytest
+                        """
+                    }
+                }
+            }
+            stage('Running flake8') {
+                echo "Running flake8"
+                checkout scm
+                container("docker-pretty-ps") {
+                    ansiColor('gnome-terminal') {
+                        sh """#!/usr/bin/env bash
+                            flake8
                         """
                     }
                 }
