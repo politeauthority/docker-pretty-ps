@@ -31,7 +31,7 @@ def reportSuccess(clients, cycles, org) {
 label = "docker-pretty-ps-${UUID.randomUUID().toString()}"
 podTemplate(
     label: label,
-    cloud: "kubernetes-dev",
+    cloud: "kubernetes",
     containers: 
         [
             containerTemplate(
