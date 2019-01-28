@@ -35,10 +35,10 @@ podTemplate(
     containers: 
         [
             containerTemplate(
-                image: 'politeauthority/docker-pretty-ps',
+                image: 'politeauthority/docker-pretty-ps:latest',
                 name: 'docker-pretty-ps',
                 ttyEnabled: true,
-                command: 'cat',
+                command: 'tail -f /dev/null',
                 envVars: [],
                 alwaysPullImage: true
             )
@@ -61,9 +61,7 @@ podTemplate(
                 container("docker-pretty-ps") {
                     ansiColor('gnome-terminal') {
                         sh """#!/usr/bin/env bash
-                            # Want to detect whether grep fails in the following block, but bash
-                            # won't do so unless you set this option.
-                            terraform apply ${TF_ARGS} ${TF_INSTANCE_ARGS}
+                            pytest
                         """
                     }
                 }
