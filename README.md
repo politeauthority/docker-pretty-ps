@@ -53,7 +53,7 @@ pip install docker-pretty-ps
 git clone https://github.com/politeauthority/docker-pretty-ps.git
 cd docker-pretty-ps
 python3 setup.py build
-python3 setup install
+python3 setup.py install
 
 ```
 Then you should be able to run the command ```docker-pretty-ps``` any where on your system.
