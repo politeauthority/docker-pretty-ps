@@ -170,7 +170,7 @@ optional arguments:
   -r, --reverse         Reverses the display order.
   -j, --json            Instead of printing, creates a json response of the
                         container data.
-  -v, --version         Reverses the display order.
+  -v, --version         Print the binary version information.
 ```
 
 # Future
