@@ -1,6 +1,7 @@
 """Unit Tests for docker-pretty-ps
 
 """
+import copy
 from datetime import datetime, timedelta
 import os
 
@@ -343,7 +344,7 @@ class TestDockerPrettyPs(object):
         Tests the dockerprettyps.give_json() method, making sure we output the same data we would normally, but in JSON.
 
         """
-        containers = test_ps_data.ps_containers
+        containers = copy.deepcopy(test_ps_data.ps_containers)
         the_json = dockerprettyps.give_json(containers, CliArgs())
         assert the_json
 
