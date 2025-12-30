@@ -43,20 +43,28 @@ Total running:         5
 Containers in search:  2
 ```
 # Install
-### Over pip
+### Using uv (Recommended)
+```bash
+uv tool install docker-pretty-ps
+```
+
+### Using pip
 ```bash
 pip install docker-pretty-ps
 ```
 
-### Build and install
+### Manual Install
 ```bash
 git clone https://github.com/politeauthority/docker-pretty-ps.git
 cd docker-pretty-ps
-python3 setup.py build
-python3 setup.py install
-
+pip install .
 ```
-Then you should be able to run the command ```docker-pretty-ps``` any where on your system.
+
+Then you should be able to run the command `docker-pretty-ps` anywhere on your system.
+
+> [!TIP]
+> User installs typically place binaries in `~/.local/bin`. Ensure this is in your `PATH`.
+
 
 # Other Example Usages
 ### Example Slim Output --slim, (-s) Mode

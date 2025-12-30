@@ -14,7 +14,11 @@ setuptools.setup(
     url="https://github.com/politeauthority/docker-pretty-ps",
     download_url="https://github.com/politeauthority/docker-pretty-ps/archive/v0.0.1-alpha.zip",
     packages=setuptools.find_packages(),
-    scripts=['dockerprettyps/bin/docker-pretty-ps'],
+    entry_points={
+        "console_scripts": [
+            "docker-pretty-ps = dockerprettyps:run_cli",
+        ],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

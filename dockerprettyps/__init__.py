@@ -40,8 +40,8 @@ __version__ = "1.0.2"
 __title__ = """
      _         _                                _   _
   __| |___  __| |_____ _ _   ___   _ __ _ _ ___| |_| |_ _  _   ___   _ __ ___
- / _` / _ \/ _| / / -_) '_| |___| | '_ \ '_/ -_)  _|  _| || | |___| | '_ (_-<
- \__,_\___/\__|_\_\___|_|         | .__/_| \___|\__|\__|\_, |       | .__/__/
+ / _` / _ \\/ _| / / -_) '_| |___| | '_ \\ '_/ -_)  _|  _| || | |___| | '_ (_-<
+ \\__,_\\___/\\__|_\\_\\___|_|         | .__/_| \\___|\\__|\\__|\\_, |       | .__/__/
                                   |_|                   |__/        |_|
 """
 
@@ -183,7 +183,7 @@ def get_raw_containers():
     :returns: The raw information from the `docker ps` command.
     :rtype: str
     """
-    cmds = ["docker", "ps", "-a"]
+    cmds = ["docker", "ps", "-a", "--format", "{{json .}}"]
     out = subprocess.Popen(
         cmds,
         stdout=subprocess.PIPE,
@@ -206,34 +206,28 @@ def clean_output(output):
     :returns: Cleaned, usable output from docker-ps
     :rtype: list
     """
-    lines = output.split("\n")
+    lines = output.strip().split("\n")
     containers = []
-    for line in lines[1:]:
-        line_split = line.split("  ")
-        revised_line_split = []
-        if len(line_split) == 1:
+    for line in lines:
+        if not line.strip():
             continue
-        for piece in line_split:
-            if piece and piece.strip() != "":
-                revised_line_split.append(piece)
-        container = {
-            "container_id": revised_line_split[0].strip(),
-            "image": revised_line_split[1].strip(),
-            "command": revised_line_split[2].strip().replace('"', ""),
-            "created": revised_line_split[3].strip(),
-            "created_date": _parse_ps_date(revised_line_split[4].strip()),
-            "status": revised_line_split[4].strip(),
-            "status_date": _parse_ps_date(revised_line_split[4].strip()),
-            "running": _clean_status(revised_line_split[4])
-        }
+        try:
+            data = json.loads(line)
+        except json.JSONDecodeError:
+            continue
 
-        # Not all containers will have ports
-        if len(revised_line_split) == 6:
-            container["ports"] = []
-            container["name"] = revised_line_split[5].strip()
-        else:
-            container["ports"] = _parse_ports(revised_line_split[5])
-            container["name"] = revised_line_split[6].strip()
+        container = {
+            "container_id": data.get("ID", "").strip(),
+            "image": data.get("Image", "").strip(),
+            "command": data.get("Command", "").strip().replace('"', ""),
+            "created": data.get("RunningFor", "").strip(),
+            "created_date": _parse_ps_date(data.get("RunningFor", "").strip()),
+            "status": data.get("Status", "").strip(),
+            "status_date": _parse_ps_date(data.get("Status", "").strip()),
+            "running": _clean_status(data.get("Status", "")),
+            "ports": _parse_ports(data.get("Ports", "")),
+            "name": data.get("Names", "").strip()
+        }
         containers.append(container)
 
     containers = get_container_colors(containers)
@@ -282,7 +276,7 @@ def _parse_ps_date(val):
         cleaned = cleaned[:cleaned.find('(healthy')].strip()
 
     elif '(health' in cleaned:
-        cleaned = cleaned[:cleaned.find(')') + 1].strip()
+        cleaned = cleaned[:cleaned.find('(health')].strip()
 
     elif '(unhealthy' in cleaned:
         cleaned = cleaned[:cleaned.find('(')].strip()

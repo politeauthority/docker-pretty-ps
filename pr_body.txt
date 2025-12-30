@@ -1,0 +1,7 @@
+- Fixes #21 (hardcoded python3.7 shebang)
+- Fixes brittle parsing logic (now uses `docker ps --format json`) which fixes #21 and cases where commands contain newlines/spaces
+- Likely fixes/avoids #37 (pkg_resources launcher deprecation warning)
+- Fixes `SyntaxWarning` in Python 3.12+ by escaping ASCII art backslashes
+- Adds `python -m dockerprettyps` fallback
+- Adds CI coverage for pip and uv installs
+- Updates README to recommend modern install methods
